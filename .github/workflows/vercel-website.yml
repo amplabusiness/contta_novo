@@ -39,9 +39,14 @@ jobs:
         run: vercel build --token=$VERCEL_TOKEN
 
       - name: Deploy (Prebuilt)
+        id: deploy
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-        run: vercel deploy --prebuilt --prod --token=$VERCEL_TOKEN
+        run: |
+          set -e
+          url=$(vercel deploy --prebuilt --prod --token="$VERCEL_TOKEN" | tail -n1 | tr -d '\n')
+          echo "Deployed to: $url"
+          echo "url=$url" >> "$GITHUB_OUTPUT"
 
       - name: Trigger smoke tests
         if: success()
@@ -52,5 +57,5 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo,
               event_type: 'post-deploy',
-              client_payload: { source: 'vercel-website' }
+              client_payload: { source: 'vercel-website', website_url: '${{ steps.deploy.outputs.url }}' }
             })

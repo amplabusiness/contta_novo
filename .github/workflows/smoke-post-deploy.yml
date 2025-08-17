@@ -17,12 +17,14 @@ jobs:
         env:
           SEARCH_API_URL: ${{ secrets.SMOKE_SEARCH_API_URL }}
           EXCEL_API_URL: ${{ secrets.SMOKE_EXCEL_API_URL }}
-          WEBSITE_URL: ${{ secrets.SMOKE_WEBSITE_URL }}
+          WEBSITE_URL_SECRET: ${{ secrets.SMOKE_WEBSITE_URL }}
           PORTAL_URL: ${{ secrets.SMOKE_PORTAL_URL }}
         run: |
           set -e
           echo "Starting smoke checks..."
-          # Defaults if secrets are not set
+          # Resolve WEBSITE_URL: payload -> secret -> default
+          WEBSITE_URL="${{ github.event.client_payload.website_url }}"
+          if [ -z "$WEBSITE_URL" ]; then WEBSITE_URL="$WEBSITE_URL_SECRET"; fi
           if [ -z "$WEBSITE_URL" ]; then WEBSITE_URL="https://conttanovo.vercel.app"; fi
           if [ -n "$SEARCH_API_URL" ]; then
             echo "- Search API: $SEARCH_API_URL/health";
