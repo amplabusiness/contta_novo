@@ -1,0 +1,46 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  node-services:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        workdir:
+          - contta-search-api-main/contta-search-api-main
+          - contta-excel-parser-main/contta-excel-parser-main
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          cache: 'npm'
+          cache-dependency-path: ${{ matrix.workdir }}/package-lock.json
+      - name: Install
+        working-directory: ${{ matrix.workdir }}
+        run: npm ci --legacy-peer-deps
+      - name: Build
+        working-directory: ${{ matrix.workdir }}
+        run: |
+          if [ -f package.json ]; then
+            npm run build --if-present
+          fi
+
+  dotnet-worker:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+      - name: Restore & Build (Solution)
+        working-directory: agendador-back-end-master/agendador-back-end-master
+        run: |
+          dotnet restore Corporate.Contta.Schedule.Service.sln
+          dotnet build Corporate.Contta.Schedule.Service.sln -c Release --no-restore

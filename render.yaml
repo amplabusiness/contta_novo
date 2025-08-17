@@ -26,11 +26,11 @@ services:
       - key: PORT
         value: 5001
       - key: CORS_ORIGINS
-        value: http://localhost:3000,https://<PORTAL_HOST>
+        sync: false
       - key: MONGODB_URI
         sync: false
       - key: OIDC_ISSUER
-        value: https://<KEYCLOAK_HOST>/realms/contta
+        sync: false
       - key: OIDC_AUDIENCE
         value: contta-portal
     healthCheckPath: /health
@@ -48,9 +48,9 @@ services:
       - key: PORT
         value: 5002
       - key: PRODUCTION_URL
-        value: https://<PORTAL_HOST>
+        sync: false
       - key: OIDC_ISSUER
-        value: https://<KEYCLOAK_HOST>/realms/contta
+        sync: false
       - key: OIDC_AUDIENCE
         value: contta-portal
     healthCheckPath: /health

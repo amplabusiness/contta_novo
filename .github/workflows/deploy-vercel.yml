@@ -1,0 +1,75 @@
+name: Deploy Portal (Vercel)
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'contta-website-main/contta-website-main/**'
+      - '.github/workflows/deploy-vercel.yml'
+  workflow_dispatch: {}
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+  environment: production
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 18
+      - name: Guard and export env
+        run: |
+          VERCEL_TOKEN_VAL="${{ secrets.VERCEL_TOKEN }}"
+          if [ -z "$VERCEL_TOKEN_VAL" ]; then VERCEL_TOKEN_VAL="${{ secrets.VERSEL_TOKEN }}"; fi
+          VERCEL_ORG_ID_VAL="${{ secrets.VERCEL_ORG_ID }}"
+          VERCEL_PROJECT_ID_VAL="${{ secrets.VERCEL_PROJECT_ID }}"
+          if [ -z "$VERCEL_TOKEN_VAL" ] || [ -z "$VERCEL_ORG_ID_VAL" ] || [ -z "$VERCEL_PROJECT_ID_VAL" ]; then
+            echo "Vercel secrets missing. Skipping deploy. Ensure VERCEL_TOKEN, VERCEL_ORG_ID, VERCEL_PROJECT_ID are set (env: production or repo secrets)."
+            echo "SKIP_DEPLOY=true" >> $GITHUB_ENV
+          else
+            echo "VERCEL_TOKEN=$VERCEL_TOKEN_VAL" >> $GITHUB_ENV
+            echo "VERCEL_ORG_ID=$VERCEL_ORG_ID_VAL" >> $GITHUB_ENV
+            echo "VERCEL_PROJECT_ID=$VERCEL_PROJECT_ID_VAL" >> $GITHUB_ENV
+            echo "SKIP_DEPLOY=false" >> $GITHUB_ENV
+          fi
+      - name: Install Vercel CLI
+        if: env.SKIP_DEPLOY == 'false'
+        run: npm i -g vercel@latest
+      - name: Pull Vercel env
+        working-directory: contta-website-main/contta-website-main
+        if: env.SKIP_DEPLOY == 'false'
+        env:
+          VERCEL_TOKEN: ${{ env.VERCEL_TOKEN }}
+          VERCEL_ORG_ID: ${{ env.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ env.VERCEL_PROJECT_ID }}
+        run: vercel pull --yes --environment=production --token "$VERCEL_TOKEN"
+      - name: Build
+        working-directory: contta-website-main/contta-website-main
+        if: env.SKIP_DEPLOY == 'false'
+        env:
+          VERCEL_TOKEN: ${{ env.VERCEL_TOKEN }}
+          VERCEL_ORG_ID: ${{ env.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ env.VERCEL_PROJECT_ID }}
+        run: vercel build --prod --token "$VERCEL_TOKEN"
+      - name: Deploy
+        id: deploy
+        working-directory: contta-website-main/contta-website-main
+        if: env.SKIP_DEPLOY == 'false'
+        env:
+          VERCEL_TOKEN: ${{ env.VERCEL_TOKEN }}
+          VERCEL_ORG_ID: ${{ env.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ env.VERCEL_PROJECT_ID }}
+        run: |
+          url=$(vercel deploy --prebuilt --prod --token "$VERCEL_TOKEN" | tail -n1)
+          echo "Deployed to: $url"
+          echo "url=$url" >> $GITHUB_OUTPUT
+      - name: Smoke check
+        if: env.SKIP_DEPLOY == 'false'
+        run: |
+          target_url="${{ steps.deploy.outputs.url }}"
+          if [ -z "$target_url" ]; then
+            echo "No URL from deploy output. Skipping smoke check."; exit 0
+          fi
+          echo "Probing $target_url ..."
+          curl -fsS --max-time 10 "$target_url" >/dev/null
+          echo "Smoke check OK"

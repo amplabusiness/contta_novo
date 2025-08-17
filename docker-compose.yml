@@ -60,7 +60,8 @@ services:
     ports:
       - "5001:5001"
     depends_on:
-      - mongo
+  - mongo
+  - keycloak
 
   excelparser:
     build:
@@ -79,10 +80,14 @@ services:
       context: ./contta-website-main/contta-website-main
     environment:
       NODE_ENV: production
+  NEXT_PUBLIC_API_URL: http://localhost:5001
+  NEXT_PUBLIC_OIDC_ISSUER: http://localhost:8080/realms/contta
+  NEXT_PUBLIC_OIDC_CLIENT_ID: contta-portal
     ports:
       - "3000:3000"
     depends_on:
-      - searchapi
+  - searchapi
+  - keycloak
 
   keycloak:
     image: quay.io/keycloak/keycloak:24.0
