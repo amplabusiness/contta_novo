@@ -29,8 +29,8 @@ jobs:
       - name: Pull Vercel Env
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
-          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID_WEBSITE }}
+          VERCEL_ORG_ID: jp8v9KHpoxePXa6ejnRidUrb
+          VERCEL_PROJECT_ID: prj_AU0ftVr2HaFTzna1k3wQ3Dakuwn3
         run: vercel pull --yes --environment=production --token=$VERCEL_TOKEN
 
       - name: Build

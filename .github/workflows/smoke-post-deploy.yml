@@ -22,6 +22,8 @@ jobs:
         run: |
           set -e
           echo "Starting smoke checks..."
+          # Defaults if secrets are not set
+          if [ -z "$WEBSITE_URL" ]; then WEBSITE_URL="https://conttanovo.vercel.app"; fi
           if [ -n "$SEARCH_API_URL" ]; then
             echo "- Search API: $SEARCH_API_URL/health";
             curl -fsSL "$SEARCH_API_URL/health" | jq . >/dev/null || { echo "Search API FAIL"; exit 1; }
