@@ -12,9 +12,25 @@ const app = express();
 
 // --- MIDDLEWARES --- //
 
+// CORS configurável por variável de ambiente (CORS_ORIGINS=orig1,orig2)
+const corsOrigins = (process.env.CORS_ORIGINS || '')
+  .split(',')
+  .map((s) => s.trim())
+  .filter(Boolean);
+
+const defaultCorsChecker = (origin: string | undefined, callback: any) => {
+  if (!origin) return callback(null, true);
+  try {
+    const url = new URL(origin);
+    const host = url.host.toLowerCase();
+    if (host === 'localhost:3000' || host.endsWith('.vercel.app')) return callback(null, true);
+  } catch {}
+  return callback(new Error('Not allowed by CORS'));
+};
+
 app.use(
   cors({
-    origin: ['http://localhost:3000', process.env.PRODUCTION_URL],
+    origin: corsOrigins.length > 0 ? corsOrigins : defaultCorsChecker,
     exposedHeaders: ['Content-Disposition'],
   }),
 );

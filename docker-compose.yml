@@ -26,11 +26,13 @@ services:
       context: ./agendador-back-end-master/agendador-back-end-master/ConsumerXml
       dockerfile: Dockerfile
     environment:
-      RABBITMQ_HOST: rabbitmq
-      RABBITMQ_PORT: "5672"
-      RABBITMQ_VHOST: "/"
-      RABBITMQ_USER: admin
-      RABBITMQ_PASSWORD: admin
+  # Prefer RABBITMQ_URL when using CloudAMQP (amqps) e.g. amqps://user:pass@host/vhost
+  # RABBITMQ_URL: amqps://<user>:<pass>@<cloudamqp-host>/<vhost>
+  RABBITMQ_HOST: rabbitmq
+  RABBITMQ_PORT: "5672"
+  RABBITMQ_VHOST: "/"
+  RABBITMQ_USER: admin
+  RABBITMQ_PASSWORD: admin
       RABBITMQ_QUEUE: Modelo55
       RABBITMQ_PREFETCH: "20"
       RabbitMQ__Durable: "true"

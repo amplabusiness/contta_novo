@@ -9,7 +9,8 @@ Este guia descreve como publicar o ambiente de staging com variáveis seguras.
 - MongoDB Atlas (cluster M0/M10) – DB contta
 - CloudAMQP (RabbitMQ gerenciado) – plano starter
 - S3 compatível (Backblaze B2/AWS) – opcional
-
+- CloudAMQP: gere credenciais no painel e NUNCA comite chaves/URLs sensíveis no repositório.
+  - Se alguma chave foi exposta, ROTACIONE imediatamente no provedor e force novo deploy.
 ## 2) Secrets e variáveis por ambiente
 
 - Atlas

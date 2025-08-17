@@ -1,0 +1,16 @@
+# Trigger para acionar workflows automaticamente
+# Timestamp: 2025-08-17 - Deploy automático 100% IA iniciado
+
+Deploy status:
+- CI Backend: Configurado para Yarn/npm por projeto
+- Deploy Render: Workflow com polling e smoke checks  
+- Deploy Vercel: Website e Portal com smoke tests
+- Monitoramento: Em progresso
+
+Próximos passos após commit:
+1. CI Backend executará nos projetos alterados
+2. Deploy Render aguardará cada serviço ficar live
+3. Deploy Vercel publicará Website/Portal  
+4. Smoke tests validarão endpoints
+
+Status: INICIANDO DEPLOY AUTOMATIZADO

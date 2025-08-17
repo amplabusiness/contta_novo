@@ -29,16 +29,40 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '18'
-          cache: 'npm'
-          cache-dependency-path: ${{ matrix.project }}/package-lock.json
+          # Cache disabled to avoid failures when lockfile is absent in monorepo projects
 
-      - name: Install dependencies
+      - name: Enable corepack (Yarn support)
+        shell: bash
         run: |
-          if [ -f package-lock.json ]; then npm ci; else npm i; fi
+          npm -v
+          corepack enable || true
+          corepack prepare yarn@stable --activate || true
+
+      - name: Install dependencies (npm or yarn)
+        shell: bash
+        run: |
+          if [ -f yarn.lock ]; then
+            echo "Using yarn"
+            yarn --version || true
+            yarn install --frozen-lockfile
+            echo "PKG_MGR=yarn" >> $GITHUB_ENV
+          elif [ -f package-lock.json ]; then
+            echo "Using npm ci"
+            npm ci
+            echo "PKG_MGR=npm" >> $GITHUB_ENV
+          else
+            echo "Using npm i"
+            npm i
+            echo "PKG_MGR=npm" >> $GITHUB_ENV
+          fi
 
       - name: Build
-        run: npm run build
+        shell: bash
+        run: |
+          if [ "$PKG_MGR" = "yarn" ]; then yarn build; else npm run build; fi
 
       - name: Typecheck (emit d.ts only)
-        run: npm run postbuild
+        shell: bash
+        run: |
+          if [ "$PKG_MGR" = "yarn" ]; then yarn postbuild; else npm run postbuild; fi
         continue-on-error: true

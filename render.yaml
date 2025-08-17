@@ -1,5 +1,19 @@
 services:
   - type: web
+    name: contta-keycloak-staging
+    env: docker
+    plan: starter
+    autoDeploy: true
+    rootDir: .docker/keycloak
+    dockerfilePath: Dockerfile
+    envVars:
+      - key: KEYCLOAK_ADMIN
+        value: admin
+      - key: KEYCLOAK_ADMIN_PASSWORD
+        sync: false
+    healthCheckPath: /realms/master/.well-known/openid-configuration
+
+  - type: web
     name: contta-searchapi-staging
     env: docker
     plan: starter
@@ -11,6 +25,8 @@ services:
         value: production
       - key: PORT
         value: 5001
+      - key: CORS_ORIGINS
+        value: http://localhost:3000,https://<PORTAL_HOST>
       - key: MONGODB_URI
         sync: false
       - key: OIDC_ISSUER
@@ -39,29 +55,27 @@ services:
         value: contta-portal
     healthCheckPath: /health
 
-  - type: web
-    name: contta-keycloak-staging
+  - type: worker
+    name: contta-consumerxml-staging
     env: docker
     plan: starter
     autoDeploy: true
-    rootDir: .docker/keycloak
+    rootDir: agendador-back-end-master/agendador-back-end-master/ConsumerXml
     dockerfilePath: Dockerfile
     envVars:
-      - key: KEYCLOAK_ADMIN
-        value: admin
-      - key: KEYCLOAK_ADMIN_PASSWORD
+      - key: RABBITMQ_URL
         sync: false
-    healthCheckPath: /realms/master/.well-known/openid-configuration
-
-  - type: web
-    name: contta-website-staging
-    env: node
-    plan: starter
-    autoDeploy: true
-    rootDir: contta-website-main/contta-website-main
-    buildCommand: npm ci && npm run build
-    startCommand: npm run start
-    envVars:
-      - key: NODE_ENV
-        value: production
-    healthCheckPath: /
+      - key: RABBITMQ_QUEUE
+        value: Modelo55
+      - key: RABBITMQ_PREFETCH
+        value: 20
+      - key: RabbitMQ__Durable
+        value: true
+      - key: RabbitMQ__Exclusive
+        value: false
+      - key: RabbitMQ__AutoDelete
+        value: false
+      - key: RabbitMQ__DeadLetterExchange
+        value: dlx.nfe
+      - key: RabbitMQ__DeadLetterRoutingKey
+        value: Modelo55.dlq

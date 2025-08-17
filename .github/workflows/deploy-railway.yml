@@ -1,13 +1,16 @@
-name: Deploy Backends to Railway
+# MIGRADO PARA RENDER - Railway workflow desabilitado
+# Use deploy-render.yml para automação completa
+
+name: "[DEPRECATED] Deploy Backends to Railway"
 
 on:
-  push:
-    branches: [ main ]
-    paths:
-      - 'contta-search-api-main/contta-search-api-main/**'
-      - 'contta-excel-parser-main/contta-excel-parser-main/**'
-      - '.github/workflows/deploy-railway.yml'
-  workflow_dispatch: {}
+  # Desabilitado durante migração para Render
+  workflow_dispatch:
+    inputs:
+      force_deploy:
+        description: 'Force deploy (migração para Render recomendada)'
+        required: true
+        default: 'false'
 
 jobs:
   deploy:

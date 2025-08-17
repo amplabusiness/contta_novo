@@ -40,15 +40,31 @@ namespace ConsumerXml
             rabbit.Queue = GetEnv("RABBITMQ_QUEUE", rabbit.Queue);
             rabbit.Prefetch = (ushort)Math.Max(1, GetEnvInt("RABBITMQ_PREFETCH", rabbit.Prefetch));
 
-            var factory = new ConnectionFactory
+            // Support CloudAMQP single URL via RABBITMQ_URL
+            // Example: amqps://user:pass@host/vhost
+            var rabbitUrl = Environment.GetEnvironmentVariable("RABBITMQ_URL");
+            ConnectionFactory factory;
+            if (!string.IsNullOrWhiteSpace(rabbitUrl))
             {
-                HostName = rabbit.Host,
-                Port = rabbit.Port,
-                VirtualHost = rabbit.VirtualHost,
-                UserName = rabbit.User,
-                Password = rabbit.Password,
-                AutomaticRecoveryEnabled = true,
-            };
+                factory = new ConnectionFactory
+                {
+                    Uri = new Uri(rabbitUrl),
+                    AutomaticRecoveryEnabled = true,
+                };
+                Log.Information("Using RABBITMQ_URL for connection (host: {Host}, vhost: {VHost})", factory.HostName, factory.VirtualHost);
+            }
+            else
+            {
+                factory = new ConnectionFactory
+                {
+                    HostName = rabbit.Host,
+                    Port = rabbit.Port,
+                    VirtualHost = rabbit.VirtualHost,
+                    UserName = rabbit.User,
+                    Password = rabbit.Password,
+                    AutomaticRecoveryEnabled = true,
+                };
+            }
             using (var connection = factory.CreateConnection())
             {
                 IModel channel = connection.CreateModel();

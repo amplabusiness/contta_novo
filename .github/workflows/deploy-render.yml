@@ -1,0 +1,179 @@
+name: Deploy to Render (Keycloak + APIs)
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'render.yaml'
+      - 'contta-search-api-main/contta-search-api-main/**'
+      - 'contta-excel-parser-main/contta-excel-parser-main/**'
+      - '.docker/keycloak/**'
+      - '.github/workflows/deploy-render.yml'
+  workflow_dispatch: {}
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup tools
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y jq curl
+
+      - name: Inspect Render service configs
+        if: ${{ secrets.RENDER_API_TOKEN != '' }}
+        env:
+          RENDER_API_TOKEN: ${{ secrets.RENDER_API_TOKEN }}
+          SID_KEYCLOAK: ${{ secrets.RENDER_SERVICE_ID_KEYCLOAK }}
+          SID_SEARCH: ${{ secrets.RENDER_SERVICE_ID_SEARCHAPI }}
+          SID_EXCEL: ${{ secrets.RENDER_SERVICE_ID_EXCELPARSER }}
+          SID_CONSUMER: ${{ secrets.RENDER_SERVICE_ID_CONSUMERXML }}
+        run: |
+          set -e
+          inspect() {
+            local id="$1"; local label="$2";
+            if [ -z "$id" ]; then echo "[$label] skipped (no ID)"; return; fi
+            echo "===== [$label] $id"
+            curl -fsSL -H "Authorization: Bearer ${RENDER_API_TOKEN}" \
+              "https://api.render.com/v1/services/${id}" | jq .
+          }
+          inspect "$SID_KEYCLOAK" Keycloak
+          inspect "$SID_SEARCH" SearchAPI
+          inspect "$SID_EXCEL" ExcelParser
+          inspect "$SID_CONSUMER" ConsumerXml
+
+      - name: Define helper (wait for deploy)
+        shell: bash
+        env:
+          RENDER_API_TOKEN: ${{ secrets.RENDER_API_TOKEN }}
+        run: |
+          cat > wait_render.sh << 'EOF'
+          #!/usr/bin/env bash
+          set -euo pipefail
+          SERVICE_ID="$1"
+          TIMEOUT_SEC="${2:-900}"   # 15 min default
+          INTERVAL_SEC="${3:-10}"
+          start=$(date +%s)
+          while true; do
+            now=$(date +%s)
+            elapsed=$((now-start))
+            if [ "$elapsed" -gt "$TIMEOUT_SEC" ]; then
+              echo "Timeout aguardando deploy do serviço $SERVICE_ID" >&2
+              exit 1
+            fi
+            resp=$(curl -fsSL -H "Authorization: Bearer ${RENDER_API_TOKEN}" \
+              "https://api.render.com/v1/services/${SERVICE_ID}/deploys?limit=1") || { echo "Falha na API do Render"; exit 1; }
+            status=$(echo "$resp" | jq -r '.[0].status // empty')
+            # Possíveis: build_in_progress, update_in_progress, live, failed
+            echo "Status atual ($SERVICE_ID): ${status}"
+            if [ "$status" = "live" ]; then
+              exit 0
+            fi
+            if [ "$status" = "failed" ]; then
+              echo "Deploy falhou para $SERVICE_ID" >&2
+              echo "$resp" | jq .
+              exit 1
+            fi
+            sleep "$INTERVAL_SEC"
+          done
+          EOF
+          chmod +x wait_render.sh
+
+      - name: Trigger Render deploy - Keycloak
+        if: ${{ secrets.RENDER_SERVICE_ID_KEYCLOAK != '' }}
+        env:
+          RENDER_API_TOKEN: ${{ secrets.RENDER_API_TOKEN }}
+          SERVICE_ID: ${{ secrets.RENDER_SERVICE_ID_KEYCLOAK }}
+        run: |
+          set -e
+          curl -fsSL -X POST \
+            -H "Authorization: Bearer ${RENDER_API_TOKEN}" \
+            -H "Content-Type: application/json" \
+            https://api.render.com/v1/services/${SERVICE_ID}/deploys \
+            -d '{}' | jq .
+
+      - name: Wait for Render deploy - Keycloak
+        if: ${{ secrets.RENDER_SERVICE_ID_KEYCLOAK != '' }}
+        env:
+          SERVICE_ID: ${{ secrets.RENDER_SERVICE_ID_KEYCLOAK }}
+        run: ./wait_render.sh "$SERVICE_ID" 900 10
+
+      - name: Trigger Render deploy - Search API
+        if: ${{ secrets.RENDER_SERVICE_ID_SEARCHAPI != '' }}
+        env:
+          RENDER_API_TOKEN: ${{ secrets.RENDER_API_TOKEN }}
+          SERVICE_ID: ${{ secrets.RENDER_SERVICE_ID_SEARCHAPI }}
+        run: |
+          set -e
+          curl -fsSL -X POST \
+            -H "Authorization: Bearer ${RENDER_API_TOKEN}" \
+            -H "Content-Type: application/json" \
+            https://api.render.com/v1/services/${SERVICE_ID}/deploys \
+            -d '{}' | jq .
+
+      - name: Wait for Render deploy - Search API
+        if: ${{ secrets.RENDER_SERVICE_ID_SEARCHAPI != '' }}
+        env:
+          SERVICE_ID: ${{ secrets.RENDER_SERVICE_ID_SEARCHAPI }}
+        run: ./wait_render.sh "$SERVICE_ID" 900 10
+
+      - name: Trigger Render deploy - Excel Parser
+        if: ${{ secrets.RENDER_SERVICE_ID_EXCELPARSER != '' }}
+        env:
+          RENDER_API_TOKEN: ${{ secrets.RENDER_API_TOKEN }}
+          SERVICE_ID: ${{ secrets.RENDER_SERVICE_ID_EXCELPARSER }}
+        run: |
+          set -e
+          curl -fsSL -X POST \
+            -H "Authorization: Bearer ${RENDER_API_TOKEN}" \
+            -H "Content-Type: application/json" \
+            https://api.render.com/v1/services/${SERVICE_ID}/deploys \
+            -d '{}' | jq .
+
+      - name: Wait for Render deploy - Excel Parser
+        if: ${{ secrets.RENDER_SERVICE_ID_EXCELPARSER != '' }}
+        env:
+          SERVICE_ID: ${{ secrets.RENDER_SERVICE_ID_EXCELPARSER }}
+        run: ./wait_render.sh "$SERVICE_ID" 900 10
+
+      - name: Trigger Render deploy - ConsumerXml (Worker)
+        if: ${{ secrets.RENDER_SERVICE_ID_CONSUMERXML != '' }}
+        env:
+          RENDER_API_TOKEN: ${{ secrets.RENDER_API_TOKEN }}
+          SERVICE_ID: ${{ secrets.RENDER_SERVICE_ID_CONSUMERXML }}
+        run: |
+          set -e
+          curl -fsSL -X POST \
+            -H "Authorization: Bearer ${RENDER_API_TOKEN}" \
+            -H "Content-Type: application/json" \
+            https://api.render.com/v1/services/${SERVICE_ID}/deploys \
+            -d '{}' | jq .
+
+      - name: Wait for Render deploy - ConsumerXml
+        if: ${{ secrets.RENDER_SERVICE_ID_CONSUMERXML != '' }}
+        env:
+          SERVICE_ID: ${{ secrets.RENDER_SERVICE_ID_CONSUMERXML }}
+        run: ./wait_render.sh "$SERVICE_ID" 900 10
+
+      - name: Optional smoke checks (URLs via secrets)
+        env:
+          URL_KEYCLOAK: ${{ secrets.RENDER_URL_KEYCLOAK }}
+          URL_SEARCH: ${{ secrets.RENDER_URL_SEARCHAPI }}
+          URL_EXCEL: ${{ secrets.RENDER_URL_EXCELPARSER }}
+        run: |
+          set -e
+          if [ -n "$URL_KEYCLOAK" ]; then
+            echo "Keycloak: $URL_KEYCLOAK/.well-known openid-config";
+            curl -fsSL "$URL_KEYCLOAK/realms/contta/.well-known/openid-configuration" | jq . >/dev/null;
+          else echo "Keycloak URL não configurada (pulando)"; fi
+          if [ -n "$URL_SEARCH" ]; then
+            echo "Search /health: $URL_SEARCH/health";
+            curl -fsSL "$URL_SEARCH/health" | jq . >/dev/null;
+          else echo "Search URL não configurada (pulando)"; fi
+          if [ -n "$URL_EXCEL" ]; then
+            echo "Excel /health: $URL_EXCEL/health";
+            curl -fsSL "$URL_EXCEL/health" | jq . >/dev/null;
+          else echo "Excel URL não configurada (pulando)"; fi

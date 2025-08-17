@@ -15,12 +15,25 @@ const app = express();
 
 // --- MIDDLEWARES --- //
 
+// CORS configurável (CORS_ORIGINS=orig1,orig2); default permite localhost e *.vercel.app
+const corsOrigins = (process.env.CORS_ORIGINS || '')
+  .split(',')
+  .map((s) => s.trim())
+  .filter(Boolean);
+
+const defaultCorsChecker = (origin: string | undefined, callback: any) => {
+  if (!origin) return callback(null, true);
+  try {
+    const url = new URL(origin);
+    const host = url.host.toLowerCase();
+    if (host === 'localhost:3000' || host.endsWith('.vercel.app')) return callback(null, true);
+  } catch {}
+  return callback(new Error('Not allowed by CORS'));
+};
+
 app.use(
   cors({
-    origin: [
-      'http://localhost:3000',
-      'https://portal-simples-git-develop-conttaampla.vercel.app',
-    ],
+    origin: corsOrigins.length > 0 ? corsOrigins : defaultCorsChecker,
   }),
 );
 app.use(morgan('dev'));
