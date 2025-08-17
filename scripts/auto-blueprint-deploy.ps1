@@ -2,9 +2,17 @@
 # PowerShell script to execute Blueprint Deploy on Windows
 
 param(
-    [Parameter(Mandatory=$true)]
+    [Parameter(Mandatory=$false)]
     [string]$RenderApiToken
 )
+
+if (-not $RenderApiToken) {
+    $RenderApiToken = $env:RENDER_API_TOKEN
+}
+if (-not $RenderApiToken) {
+    Write-Error "RENDER_API_TOKEN não definido. Defina como variável de ambiente ou passe como parâmetro."
+    exit 1
+}
 
 Write-Host "🚀 EXECUTANDO BLUEPRINT DEPLOY AUTOMATICAMENTE" -ForegroundColor Green
 Write-Host "=" * 50
@@ -25,7 +33,7 @@ $blueprintPayload = @{
             plan = "starter"
             envVars = @{
                 KEYCLOAK_ADMIN = "admin"
-                KEYCLOAK_ADMIN_PASSWORD = "ConttaKeycloak2025!@#"
+                KEYCLOAK_ADMIN_PASSWORD = "$($env:KEYCLOAK_ADMIN_PASSWORD)"
             }
         },
         @{
@@ -35,10 +43,10 @@ $blueprintPayload = @{
             envVars = @{
                 NODE_ENV = "production"
                 PORT = "5001"
-                MONGODB_URI = "mongodb://placeholder"
-                OIDC_ISSUER = "https://contta-keycloak-staging.onrender.com/realms/contta"
+                MONGODB_URI = "$($env:MONGODB_URI)"
+                OIDC_ISSUER = "${env:OIDC_ISSUER}" # fallback handled client-side if empty
                 OIDC_AUDIENCE = "contta-portal"
-                CORS_ORIGINS = "http://localhost:3000,https://contta-portal.vercel.app"
+                CORS_ORIGINS = "$($env:CORS_ORIGINS)"
             }
         },
         @{
@@ -48,9 +56,9 @@ $blueprintPayload = @{
             envVars = @{
                 NODE_ENV = "production"
                 PORT = "5002"
-                OIDC_ISSUER = "https://contta-keycloak-staging.onrender.com/realms/contta"
+                OIDC_ISSUER = "${env:OIDC_ISSUER}"
                 OIDC_AUDIENCE = "contta-portal"
-                PRODUCTION_URL = "https://contta-portal.vercel.app"
+                PRODUCTION_URL = "$($env:PRODUCTION_URL)"
             }
         },
         @{
@@ -58,7 +66,7 @@ $blueprintPayload = @{
             env = "docker"
             plan = "starter"
             envVars = @{
-                RABBITMQ_URL = "amqp://placeholder"
+                RABBITMQ_URL = "$($env:RABBITMQ_URL)"
                 RABBITMQ_QUEUE = "Modelo55"
                 RABBITMQ_PREFETCH = "20"
                 "RabbitMQ__Durable" = "true"

@@ -2,7 +2,7 @@ version: "1"
 services:
   - type: web
     name: contta-keycloak-staging
-    env: docker
+    runtime: docker
     plan: starter
   region: oregon
     autoDeploy: true
@@ -17,7 +17,7 @@ services:
 
   - type: web
     name: contta-searchapi-staging
-    env: docker
+    runtime: docker
     plan: starter
   region: oregon
     autoDeploy: true
@@ -40,7 +40,7 @@ services:
 
   - type: web
     name: contta-excelparser-staging
-    env: docker
+    runtime: docker
     plan: starter
   region: oregon
     autoDeploy: true
@@ -61,7 +61,7 @@ services:
 
   - type: worker
     name: contta-consumerxml-staging
-    env: docker
+    runtime: docker
     plan: starter
   region: oregon
     autoDeploy: true

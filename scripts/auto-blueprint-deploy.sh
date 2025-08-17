@@ -1,14 +1,14 @@
 #!/bin/bash
 # Blueprint Deploy Automation via Render API
 
-RENDER_API_TOKEN="$1"
+RENDER_API_TOKEN="${RENDER_API_TOKEN:-$1}"
 GITHUB_REPO="amplabusiness/contta_novo"
 BLUEPRINT_PATH="render.yaml"
 
 if [ -z "$RENDER_API_TOKEN" ]; then
-    echo "❌ RENDER_API_TOKEN necessário!"
-    echo "Uso: $0 <RENDER_API_TOKEN>"
-    exit 1
+  echo "❌ RENDER_API_TOKEN necessário!" >&2
+  echo "Defina como variável de ambiente ou passe como 1º argumento." >&2
+  exit 1
 fi
 
 echo "🚀 EXECUTANDO BLUEPRINT DEPLOY AUTOMATICAMENTE"
@@ -31,7 +31,7 @@ BLUEPRINT_PAYLOAD='{
       "plan": "starter",
       "envVars": {
         "KEYCLOAK_ADMIN": "admin",
-        "KEYCLOAK_ADMIN_PASSWORD": "ConttaKeycloak2025!@#"
+  "KEYCLOAK_ADMIN_PASSWORD": "'${KEYCLOAK_ADMIN_PASSWORD:-}'"
       }
     },
     {
@@ -41,10 +41,10 @@ BLUEPRINT_PAYLOAD='{
       "envVars": {
         "NODE_ENV": "production",
         "PORT": "5001",
-        "MONGODB_URI": "mongodb://placeholder",
-        "OIDC_ISSUER": "https://contta-keycloak-staging.onrender.com/realms/contta",
+  "MONGODB_URI": "'${MONGODB_URI:-}'",
+  "OIDC_ISSUER": "'${OIDC_ISSUER:-https://contta-keycloak-staging.onrender.com/realms/contta}'",
         "OIDC_AUDIENCE": "contta-portal",
-        "CORS_ORIGINS": "http://localhost:3000,https://contta-portal.vercel.app"
+  "CORS_ORIGINS": "'${CORS_ORIGINS:-http://localhost:3000,https://conttanovo.vercel.app}'"
       }
     },
     {
@@ -54,9 +54,9 @@ BLUEPRINT_PAYLOAD='{
       "envVars": {
         "NODE_ENV": "production",
         "PORT": "5002",
-        "OIDC_ISSUER": "https://contta-keycloak-staging.onrender.com/realms/contta",
+  "OIDC_ISSUER": "'${OIDC_ISSUER:-https://contta-keycloak-staging.onrender.com/realms/contta}'",
         "OIDC_AUDIENCE": "contta-portal",
-        "PRODUCTION_URL": "https://contta-portal.vercel.app"
+  "PRODUCTION_URL": "'${PRODUCTION_URL:-https://conttanovo.vercel.app}'"
       }
     },
     {
@@ -64,7 +64,7 @@ BLUEPRINT_PAYLOAD='{
       "env": "docker",
       "plan": "starter",
       "envVars": {
-        "RABBITMQ_URL": "amqp://placeholder",
+  "RABBITMQ_URL": "'${RABBITMQ_URL:-}'",
         "RABBITMQ_QUEUE": "Modelo55",
         "RABBITMQ_PREFETCH": "20",
         "RabbitMQ__Durable": "true",
@@ -90,10 +90,14 @@ echo "$DEPLOY_RESPONSE" | jq .
 # 2. Extrair Service IDs
 echo ""
 echo "📋 Extraindo Service IDs..."
-KEYCLOAK_ID=$(echo "$DEPLOY_RESPONSE" | jq -r '.services[] | select(.name=="contta-keycloak-staging") | .id')
-SEARCH_ID=$(echo "$DEPLOY_RESPONSE" | jq -r '.services[] | select(.name=="contta-searchapi-staging") | .id')
-EXCEL_ID=$(echo "$DEPLOY_RESPONSE" | jq -r '.services[] | select(.name=="contta-excelparser-staging") | .id')
-CONSUMER_ID=$(echo "$DEPLOY_RESPONSE" | jq -r '.services[] | select(.name=="contta-consumerxml-staging") | .id')
+KEYCLOAK_ID=$(echo "$DEPLOY_RESPONSE" | jq -r '.services[] | select(.name=="contta-keycloak-staging") | .id // empty')
+SEARCH_ID=$(echo "$DEPLOY_RESPONSE" | jq -r '.services[] | select(.name=="contta-searchapi-staging") | .id // empty')
+EXCEL_ID=$(echo "$DEPLOY_RESPONSE" | jq -r '.services[] | select(.name=="contta-excelparser-staging") | .id // empty')
+CONSUMER_ID=$(echo "$DEPLOY_RESPONSE" | jq -r '.services[] | select(.name=="contta-consumerxml-staging") | .id // empty')
+
+if [ -z "$KEYCLOAK_ID$SEARCH_ID$EXCEL_ID$CONSUMER_ID" ]; then
+  echo "⚠️ Não foi possível extrair IDs de serviço. Verifique o token e a resposta da API." >&2
+fi
 
 echo "Service IDs:"
 echo "RENDER_SERVICE_ID_KEYCLOAK=$KEYCLOAK_ID"

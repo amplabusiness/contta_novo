@@ -1,0 +1,53 @@
+name: Deploy Vercel Portal
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'contta-website-main/**'
+  workflow_dispatch: {}
+
+env:
+  VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+  VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+  VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+
+jobs:
+  deploy:
+    name: Vercel Deploy
+    runs-on: ubuntu-latest
+    environment: production
+    defaults:
+      run:
+        working-directory: contta-website-main/contta-website-main
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Preflight - check secrets
+        run: |
+          missing=""
+          for k in VERCEL_TOKEN VERCEL_ORG_ID VERCEL_PROJECT_ID; do
+            if [ -z "${!k}" ]; then missing="$missing $k"; fi
+          done
+          if [ -n "$missing" ]; then
+            echo "Missing required secrets:$missing" >&2
+            exit 1
+          fi
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Vercel CLI
+        run: npm i -g vercel@latest
+
+      - name: Pull Vercel Env
+        run: vercel pull --yes --environment=production --token "$VERCEL_TOKEN"
+
+      - name: Build
+        run: vercel build --prod --token "$VERCEL_TOKEN"
+
+      - name: Deploy
+        run: vercel deploy --prebuilt --prod --token "$VERCEL_TOKEN"

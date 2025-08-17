@@ -3,10 +3,10 @@
 Este checklist resume os segredos/variáveis que precisam ser configurados no GitHub, Vercel e Render para o deploy 100% automatizado.
 
 ## GitHub Actions (Secrets)
-- VERCEL_TOKEN qC0cu15AzqUrqmNpAEWOnyNT
-- VERCEL_ORG_ID
-- VERCEL_PROJECT_ID prj_AU0ftVr2HaFTzna1k3wQ3Dakuwn3
-- RENDER_API_TOKEN rnd_ZxxPh9V5W4Odi8dSkTC3LMG5dl5I
+- VERCEL_TOKEN = <defina no GitHub Secrets>
+- VERCEL_ORG_ID = <defina no GitHub Secrets>
+- VERCEL_PROJECT_ID = <defina no GitHub Secrets>
+- RENDER_API_TOKEN = <defina no GitHub Secrets>
 - RENDER_SERVICE_ID_KEYCLOAK (opcional)
 - RENDER_SERVICE_ID_SEARCHAPI (opcional)
 - RENDER_SERVICE_ID_EXCELPARSER (opcional)
@@ -40,6 +40,8 @@ Este checklist resume os segredos/variáveis que precisam ser configurados no Gi
 - Não comitar valores reais de segredos no repositório. Use os cofres de cada plataforma.
 - Mantenha OIDC_ISSUER, CORS e PRODUCTION_URL alinhados aos domínios de produção.
 - Após configurar, rode os workflows “Deploy Portal (Vercel)” e “Deploy Services (Render)” e verifique os smoke checks.
+
+⚠️ Segurança: Tokens que apareceram aqui anteriormente devem ser revogados/rotacionados imediatamente nas plataformas (Vercel/Render) e substituídos por novos nos GitHub Secrets.
 
 ### Recuperação rápida de deploy (local)
 - Defina `RENDER_API_TOKEN` como variável de ambiente no PowerShell.

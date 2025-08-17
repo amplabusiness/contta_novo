@@ -1,0 +1,63 @@
+name: Deploy Render Blueprint
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'render.yaml'
+      - 'scripts/auto-blueprint-deploy.*'
+  workflow_dispatch: {}
+
+env:
+  # Optional defaults; secrets must be supplied in repo or environment
+  RENDER_API_TOKEN: ${{ secrets.RENDER_API_TOKEN }}
+  KEYCLOAK_ADMIN_PASSWORD: ${{ secrets.KEYCLOAK_ADMIN_PASSWORD }}
+  MONGODB_URI: ${{ secrets.MONGODB_URI }}
+  OIDC_ISSUER: ${{ secrets.OIDC_ISSUER }}
+  CORS_ORIGINS: ${{ secrets.CORS_ORIGINS }}
+  PRODUCTION_URL: ${{ secrets.PRODUCTION_URL }}
+  RABBITMQ_URL: ${{ secrets.RABBITMQ_URL }}
+
+jobs:
+  deploy:
+    name: Render Blueprint Deploy
+    runs-on: ubuntu-latest
+    environment: production
+    concurrency:
+      group: render-blueprint-${{ github.ref }}
+      cancel-in-progress: true
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Preflight - check secrets
+        run: |
+          missing=""
+          for k in RENDER_API_TOKEN KEYCLOAK_ADMIN_PASSWORD MONGODB_URI RABBITMQ_URL; do
+            if [ -z "${!k}" ]; then missing="$missing $k"; fi
+          done
+          if [ -n "$missing" ]; then
+            echo "Missing required secrets:$missing" >&2
+            exit 1
+          fi
+
+      - name: Install deps (jq, curl)
+        run: sudo apt-get update && sudo apt-get install -y jq curl
+
+      - name: Run Blueprint Deploy
+        run: bash scripts/auto-blueprint-deploy.sh
+
+      - name: Smoke check
+        if: always()
+        run: |
+          keycloakUrl="${{ secrets.RENDER_URL_KEYCLOAK }}"
+          searchUrl="${{ secrets.RENDER_URL_SEARCHAPI }}"
+          excelUrl="${{ secrets.RENDER_URL_EXCELPARSER }}"
+          [ -z "$keycloakUrl" ] && keycloakUrl="https://contta-keycloak-staging.onrender.com"
+          [ -z "$searchUrl" ] && searchUrl="https://contta-searchapi-staging.onrender.com/health"
+          [ -z "$excelUrl" ] && excelUrl="https://contta-excelparser-staging.onrender.com/health"
+          echo "Keycloak: $keycloakUrl"
+          echo "Search API: $searchUrl"
+          echo "Excel Parser: $excelUrl"
+          curl -fsS "$searchUrl" -m 20 || true
+          curl -fsS "$excelUrl" -m 20 || true
