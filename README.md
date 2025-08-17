@@ -3,6 +3,9 @@
 ![CI Backend](https://github.com/amplabusiness/contta_novo/actions/workflows/ci-backend.yml/badge.svg)
 ![CI .NET](https://github.com/amplabusiness/contta_novo/actions/workflows/ci-dotnet.yml/badge.svg)
 ![CodeQL](https://github.com/amplabusiness/contta_novo/actions/workflows/codeql.yml/badge.svg)
+![CI Frontend](https://github.com/amplabusiness/contta_novo/actions/workflows/ci-frontend.yml/badge.svg)
+![Deploy Railway](https://github.com/amplabusiness/contta_novo/actions/workflows/deploy-railway.yml/badge.svg)
+![Smoke Tests](https://github.com/amplabusiness/contta_novo/actions/workflows/smoke-post-deploy.yml/badge.svg)
 
 Monorepo com múltiplos apps (frontend e backend) e automações de deploy.
 

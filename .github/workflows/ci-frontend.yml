@@ -1,0 +1,46 @@
+name: CI Frontend (Next.js & CRA)
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'contta-website-main/contta-website-main/**'
+      - 'portal-contta-master/portal-contta-master/**'
+      - '.github/workflows/ci-frontend.yml'
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        project:
+          - contta-website-main/contta-website-main
+          - portal-contta-master/portal-contta-master
+    defaults:
+      run:
+        working-directory: ${{ matrix.project }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'yarn'
+          cache-dependency-path: ${{ matrix.project }}/yarn.lock
+
+      - name: Install deps (yarn)
+        run: |
+          corepack enable || true
+          if [ -f yarn.lock ]; then yarn install --frozen-lockfile; else npm ci || npm i; fi
+
+      - name: Lint (if configured)
+        run: |
+          if npm run | grep -q "lint"; then npm run lint || yarn lint || true; else echo "no lint script"; fi
+
+      - name: Build
+        run: |
+          if [ -f yarn.lock ]; then yarn build; else npm run build; fi

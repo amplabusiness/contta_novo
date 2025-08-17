@@ -1,0 +1,38 @@
+name: Smoke Tests (health endpoints)
+
+on:
+  workflow_dispatch:
+  repository_dispatch:
+    types: [post-deploy]
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check Search API
+        run: |
+          set -e
+          curl -fsSL "$SEARCH_API_URL/health" | jq . || exit 1
+        env:
+          SEARCH_API_URL: ${{ secrets.SMOKE_SEARCH_API_URL }}
+
+      - name: Check Excel Parser
+        run: |
+          set -e
+          curl -fsSL "$EXCEL_API_URL/health" | jq . || exit 1
+        env:
+          EXCEL_API_URL: ${{ secrets.SMOKE_EXCEL_API_URL }}
+
+      - name: Check Website
+        run: |
+          set -e
+          curl -fsSL "$WEBSITE_URL/" >/dev/null
+        env:
+          WEBSITE_URL: ${{ secrets.SMOKE_WEBSITE_URL }}
+
+      - name: Check Portal
+        run: |
+          set -e
+          curl -fsSL "$PORTAL_URL/" >/dev/null
+        env:
+          PORTAL_URL: ${{ secrets.SMOKE_PORTAL_URL }}

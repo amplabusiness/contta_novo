@@ -1,0 +1,43 @@
+name: Deploy Backends to Railway
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'contta-search-api-main/contta-search-api-main/**'
+      - 'contta-excel-parser-main/contta-excel-parser-main/**'
+      - '.github/workflows/deploy-railway.yml'
+  workflow_dispatch: {}
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install Railway CLI
+        run: npm i -g @railway/cli
+
+      - name: Deploy Search API
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+          RAILWAY_PROJECT_ID: ${{ secrets.RAILWAY_PROJECT_ID_SEARCH }}
+          RAILWAY_SERVICE_ID: ${{ secrets.RAILWAY_SERVICE_ID_SEARCH }}
+        working-directory: contta-search-api-main/contta-search-api-main
+        run: |
+          railway up --ci
+
+      - name: Deploy Excel Parser
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+          RAILWAY_PROJECT_ID: ${{ secrets.RAILWAY_PROJECT_ID_EXCEL }}
+          RAILWAY_SERVICE_ID: ${{ secrets.RAILWAY_SERVICE_ID_EXCEL }}
+        working-directory: contta-excel-parser-main/contta-excel-parser-main
+        run: |
+          railway up --ci
