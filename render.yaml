@@ -1,4 +1,17 @@
 version: "1"
+envVarGroups:
+  - name: contta-production
+    envVars:
+      - key: OIDC_ISSUER
+        sync: false
+      - key: CORS_ORIGINS
+        sync: false
+      - key: PRODUCTION_URL
+        sync: false
+      - key: MONGODB_URI
+        sync: false
+      - key: RABBITMQ_URL
+        sync: false
 services:
   - type: web
     name: contta-keycloak-staging
@@ -23,17 +36,13 @@ services:
     autoDeploy: true
     rootDir: contta-search-api-main/contta-search-api-main
     dockerfilePath: Dockerfile
+    envVarGroups:
+      - contta-production
     envVars:
       - key: NODE_ENV
         value: production
       - key: PORT
         value: 5001
-      - key: CORS_ORIGINS
-        sync: false
-      - key: MONGODB_URI
-        sync: false
-      - key: OIDC_ISSUER
-        sync: false
       - key: OIDC_AUDIENCE
         value: contta-portal
     healthCheckPath: /health
@@ -46,15 +55,13 @@ services:
     autoDeploy: true
     rootDir: contta-excel-parser-main/contta-excel-parser-main
     dockerfilePath: Dockerfile
+    envVarGroups:
+      - contta-production
     envVars:
       - key: NODE_ENV
         value: production
       - key: PORT
         value: 5002
-      - key: PRODUCTION_URL
-        sync: false
-      - key: OIDC_ISSUER
-        sync: false
       - key: OIDC_AUDIENCE
         value: contta-portal
     healthCheckPath: /health
@@ -67,9 +74,9 @@ services:
     autoDeploy: true
     rootDir: agendador-back-end-master/agendador-back-end-master/ConsumerXml
     dockerfilePath: Dockerfile
+    envVarGroups:
+      - contta-production
     envVars:
-      - key: RABBITMQ_URL
-        sync: false
       - key: RABBITMQ_QUEUE
         value: Modelo55
       - key: RABBITMQ_PREFETCH

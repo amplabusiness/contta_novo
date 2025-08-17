@@ -32,6 +32,8 @@ Este checklist resume os segredos/variáveis que precisam ser configurados no Gi
 - PRODUCTION_URL = https://<HOST_DA_API>
 - Outras variáveis específicas definidas no render.yaml
 
+Sugestão: use um Environment Group no Render para centralizar estas variáveis e anexar aos serviços. Veja `docs/RENDER-ENV-GROUP.md`.
+
 ## Keycloak (Cliente OIDC: contta-portal)
 - redirectUris: https://<SEU_DOMINIO_PORTAL>/auth/callback (e opcionalmente https://*.vercel.app/auth/callback)
 - webOrigins: https://<SEU_DOMINIO_PORTAL> (e opcionalmente https://*.vercel.app)
