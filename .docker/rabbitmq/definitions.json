@@ -2,6 +2,23 @@
   "vhosts": [
     { "name": "/" }
   ],
+  "users": [
+    {
+      "name": "admin",
+      "password_hash": "5gSOwoMSXggcU3x35LKOzjXBqYxpzz7rcovGmQ/Yb3560Xuf",
+      "hashing_algorithm": "rabbit_password_hashing_sha256",
+      "tags": "administrator"
+    }
+  ],
+  "permissions": [
+    {
+      "user": "admin",
+      "vhost": "/",
+      "configure": ".*",
+      "write": ".*",
+      "read": ".*"
+    }
+  ],
   "queues": [
     { "name": "Modelo55", "vhost": "/", "durable": true, "arguments": { "x-dead-letter-exchange": "dlx.nfe", "x-dead-letter-routing-key": "Modelo55.dlq" } },
     { "name": "Modelo55.dlq", "vhost": "/", "durable": true }
