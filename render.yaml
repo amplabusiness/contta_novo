@@ -1,8 +1,10 @@
+version: "1"
 services:
   - type: web
     name: contta-keycloak-staging
     env: docker
     plan: starter
+  region: oregon
     autoDeploy: true
     rootDir: .docker/keycloak
     dockerfilePath: Dockerfile
@@ -17,6 +19,7 @@ services:
     name: contta-searchapi-staging
     env: docker
     plan: starter
+  region: oregon
     autoDeploy: true
     rootDir: contta-search-api-main/contta-search-api-main
     dockerfilePath: Dockerfile
@@ -39,6 +42,7 @@ services:
     name: contta-excelparser-staging
     env: docker
     plan: starter
+  region: oregon
     autoDeploy: true
     rootDir: contta-excel-parser-main/contta-excel-parser-main
     dockerfilePath: Dockerfile
@@ -59,6 +63,7 @@ services:
     name: contta-consumerxml-staging
     env: docker
     plan: starter
+  region: oregon
     autoDeploy: true
     rootDir: agendador-back-end-master/agendador-back-end-master/ConsumerXml
     dockerfilePath: Dockerfile
