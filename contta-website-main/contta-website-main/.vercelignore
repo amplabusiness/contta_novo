@@ -1,0 +1,6 @@
+# Ignore large or irrelevant files for Vercel
+node_modules/
+.next/cache/
+.vscode/
+.DS_Store
+*.log
