@@ -1,0 +1,65 @@
+{
+  "id": "contta-realm",
+  "realm": "contta",
+  "enabled": true,
+  "registrationAllowed": true,
+  "loginWithEmailAllowed": true,
+  "verifyEmail": true,
+  "smtpServer": {
+    "host": "mailhog",
+    "port": "1025",
+    "from": "no-reply@contta.local",
+    "fromDisplayName": "Contta Portal",
+    "auth": "false",
+    "ssl": "false",
+    "starttls": "false"
+  },
+  "clients": [
+    {
+      "clientId": "contta-portal",
+      "name": "Contta Portal",
+      "publicClient": true,
+  "protocol": "openid-connect",
+  "standardFlowEnabled": true,
+  "implicitFlowEnabled": false,
+  "directAccessGrantsEnabled": true,
+      "redirectUris": [
+        "http://localhost:3000/*"
+      ],
+      "webOrigins": [
+    "http://localhost:3000"
+      ],
+  "attributes": {
+        "pkce.code.challenge.method": "S256"
+      }
+  }
+  ],
+  "users": [
+    {
+      "username": "sergio@amplabusiness.com.br",
+      "email": "sergio@amplabusiness.com.br",
+      "enabled": true,
+      "firstName": "Sergio",
+      "lastName": "Admin",
+      "emailVerified": true,
+      "credentials": [
+        {
+          "type": "password",
+          "value": "ChangeMe123!",
+          "temporary": false
+        }
+      ],
+      "realmRoles": [
+        "default-roles-contta"
+      ]
+    }
+  ],
+  "roles": {
+    "realm": [
+      { "name": "admin", "description": "Administrator" },
+      { "name": "gestor", "description": "Manager" },
+      { "name": "operador", "description": "Operator" },
+      { "name": "leitura", "description": "Read only" }
+    ]
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "vhosts": [
+    { "name": "/" }
+  ],
+  "queues": [
+    { "name": "Modelo55", "vhost": "/", "durable": true, "arguments": { "x-dead-letter-exchange": "dlx.nfe", "x-dead-letter-routing-key": "Modelo55.dlq" } },
+    { "name": "Modelo55.dlq", "vhost": "/", "durable": true }
+  ],
+  "exchanges": [
+    { "name": "dlx.nfe", "vhost": "/", "type": "direct", "durable": true },
+    { "name": "amq.default", "vhost": "/", "type": "direct", "durable": true }
+  ],
+  "bindings": [
+    { "source": "dlx.nfe", "vhost": "/", "destination": "Modelo55.dlq", "destination_type": "queue", "routing_key": "Modelo55.dlq" }
+  ]
+}

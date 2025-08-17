@@ -1,0 +1,39 @@
+variables:
+  CONTAINER_DEV_IMAGE: registry.gitlab.com/forshcommerce/contta-simples
+
+stages:
+  - build
+  - deploy
+build:
+  image: node:12.2.0-alpine
+  stage: build
+  before_script:
+    - yarn install
+  script:
+    - echo "Building deploy package"
+    - unset CI
+    - yarn build
+    - echo "Build successful"
+  artifacts:
+    expire_in: 2 hrs
+    paths:
+      - build
+  only:
+    - master
+
+deploy_production:
+  image: docker:latest
+  stage: deploy
+  services:
+    - docker:dind
+  script:
+    - echo "Deploying to server"
+    - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN registry.gitlab.com
+    - cp -rv build/* && docker build --pull -t $CONTAINER_DEV_IMAGE .
+    - docker push $CONTAINER_DEV_IMAGE
+  environment:
+    name: production
+  only:
+    - master
+  dependencies:
+    - build

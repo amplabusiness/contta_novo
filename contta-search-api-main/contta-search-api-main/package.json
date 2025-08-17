@@ -1,0 +1,54 @@
+{
+  "name": "contta-api",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "scripts": {
+    "dev": "ts-node-dev -r tsconfig-paths/register --transpile-only --ignore-watch node_modules ./src/server.ts",
+    "build": "babel src --extensions \".js,.ts\" --out-dir dist/lib --copy-files --no-copy-ignored",
+    "postbuild": "tsc -p tsconfig.build.json --emitDeclarationOnly",
+    "start": "node dist/lib/server.js",
+    "prepare": "husky install"
+  },
+  "dependencies": {
+    "chalk": "^4.1.2",
+    "cors": "^2.8.5",
+    "dotenv": "^10.0.0",
+    "express": "^4.17.1",
+  "jose": "^4.15.5",
+  "node-fetch": "^2.6.7",
+    "mongoose": "^6.0.4",
+    "morgan": "^1.10.0"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.15.4",
+    "@babel/core": "^7.15.4",
+    "@babel/node": "^7.15.4",
+    "@babel/preset-env": "^7.15.4",
+    "@babel/preset-typescript": "^7.15.0",
+    "@types/cors": "^2.8.12",
+    "@types/express": "^4.17.13",
+    "@types/morgan": "^1.9.3",
+    "@types/node": "^16.7.10",
+    "@typescript-eslint/eslint-plugin": "^4.30.0",
+    "@typescript-eslint/parser": "^4.30.0",
+    "babel-plugin-module-resolver": "^4.1.0",
+    "eslint": "^7.32.0",
+    "eslint-config-airbnb-base": "^14.2.1",
+    "eslint-config-prettier": "^8.3.0",
+    "eslint-import-resolver-typescript": "^2.4.0",
+    "eslint-plugin-import": "^2.24.2",
+    "eslint-plugin-prettier": "^4.0.0",
+    "husky": "^7.0.0",
+    "lint-staged": ">=10",
+    "prettier": "^2.3.2",
+    "ts-node-dev": "^1.1.8",
+    "tsconfig-paths": "^3.11.0",
+  "typescript": "^4.4.2",
+  "@types/node-fetch": "^2.6.4"
+  },
+  "lint-staged": {
+    "*.{json,js,ts,md}": "prettier --config .prettierrc --write",
+    "*.{ts,js}": "eslint --cache --max-warnings 0"
+  }
+}

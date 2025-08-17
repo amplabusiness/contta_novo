@@ -1,0 +1,58 @@
+{
+  "env": {
+    "browser": true,
+    "es6": true
+  },
+  "extends": [
+    "plugin:react/recommended",
+    "airbnb",
+    "plugin:jest/recommended",
+    "plugin:prettier/recommended"
+  ],
+  "globals": {
+    "Atomics": "readonly",
+    "SharedArrayBuffer": "readonly"
+  },
+  "parser": "babel-eslint",
+  "parserOptions": {
+    "ecmaFeatures": {
+      "jsx": true
+    },
+    "ecmaVersion": 2018,
+    "sourceType": "module"
+  },
+  "plugins": ["react", "react-hooks"],
+  "rules": {
+    "no-alert": "off",
+    "no-console": "off",
+    "camelcase": "off",
+    "no-param-reassign": "off",
+    "no-unused-vars": ["error", { "args": "none" }],
+    "no-nested-ternary": "off",
+    "func-names": "off",
+    "no-underscore-dangle": "off",
+    "react/react-in-jsx-scope": "off",
+    "react/jsx-props-no-spreading": "off",
+    "react/forbid-prop-types": "off",
+    "react/no-array-index-key": "off",
+    "jsx-a11y/label-has-associated-control": [
+      "error",
+      { "controlComponents": ["Field"] }
+    ],
+    "react-hooks/rules-of-hooks": "error",
+    "react-hooks/exhaustive-deps": "warn",
+    "react/jsx-filename-extension": [
+      "error",
+      { "extensions": [".jsx", ".js"] }
+    ],
+    "import/prefer-default-export": "off"
+  },
+  "settings": {
+    "import/resolver": {
+      "alias": {
+        "map": [["@", "./src"]],
+        "extensions": [".js", ".jsx", ".json"]
+      }
+    }
+  }
+}

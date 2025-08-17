@@ -1,0 +1,415 @@
+// Array que contém todos os anexos e as faixas
+export const anexos = [
+  {
+    anexo: 'Anexo I',
+    faixas: [
+      {
+        aliquota: 0.04,
+        deducao: 0,
+        impostos: {
+          irpj: '5.5%',
+          csll: '3.5%',
+          cofins: '12.74%',
+          pis: '2.76%',
+          cpp: '41.5%',
+          icms: '34%',
+        },
+      },
+      {
+        aliquota: 0.073,
+        deducao: 5940,
+        impostos: {
+          irpj: '5.5%',
+          csll: '3.5%',
+          cofins: '12.74%',
+          pis: '2.76%',
+          cpp: '41.5%',
+          icms: '34%',
+        },
+      },
+      {
+        aliquota: 0.095,
+        deducao: 13860,
+        impostos: {
+          irpj: '5.5%',
+          csll: '3.5%',
+          cofins: '12.74%',
+          pis: '2.76%',
+          cpp: '42%',
+          icms: '33.5%',
+        },
+      },
+      {
+        aliquota: 0.107,
+        deducao: 22500,
+        impostos: {
+          irpj: '5.5%',
+          csll: '3.5%',
+          cofins: '12.74%',
+          pis: '2.76%',
+          cpp: '42%',
+          icms: '33.5%',
+        },
+      },
+      {
+        aliquota: 0.143,
+        deducao: 87300,
+        impostos: {
+          irpj: '5.5%',
+          csll: '3.5%',
+          cofins: '12.74%',
+          pis: '2.76%',
+          cpp: '42%',
+          icms: '33.5%',
+        },
+      },
+      {
+        aliquota: 0.19,
+        deducao: 378000,
+        impostos: {
+          irpj: '13.5%',
+          csll: '10%',
+          cofins: '28.27%',
+          pis: '6.13%',
+          cpp: '42.1%',
+          icms: '-',
+        },
+      },
+    ],
+  },
+  {
+    anexo: 'Anexo II',
+    faixas: [
+      {
+        aliquota: 0.045,
+        deducao: 0,
+        impostos: {
+          irpj: '5.5%',
+          csll: '3.5%',
+          cofins: '11.51%',
+          pis: '2.49%',
+          cpp: '37.5%',
+          ipi: '7.5%',
+          icms: '32%',
+        },
+      },
+      {
+        aliquota: 0.078,
+        deducao: 5940,
+        impostos: {
+          irpj: '5.5%',
+          csll: '3.5%',
+          cofins: '11.51%',
+          pis: '2.49%',
+          cpp: '37.5%',
+          ipi: '7.5%',
+          icms: '32%',
+        },
+      },
+      {
+        aliquota: 0.1,
+        deducao: 13860,
+        impostos: {
+          irpj: '5.5%',
+          csll: '3.5%',
+          cofins: '11.51%',
+          pis: '2.49%',
+          cpp: '37.5%',
+          ipi: '7.5%',
+          icms: '32%',
+        },
+      },
+      {
+        aliquota: 0.112,
+        deducao: 22500,
+        impostos: {
+          irpj: '5.5%',
+          csll: '3.5%',
+          cofins: '11.51%',
+          pis: '2.49%',
+          cpp: '37.5%',
+          ipi: '7.5%',
+          icms: '32%',
+        },
+      },
+      {
+        aliquota: 0.147,
+        deducao: 85500,
+        impostos: {
+          irpj: '5.5%',
+          csll: '3.5%',
+          cofins: '11.51%',
+          pis: '2.49%',
+          cpp: '37.5%',
+          ipi: '7.5%',
+          icms: '32%',
+        },
+      },
+      {
+        aliquota: 0.3,
+        deducao: 720000,
+        impostos: {
+          irpj: '8.5%',
+          csll: '7.5%',
+          cofins: '20.96%',
+          pis: '4.54%',
+          cpp: '23.5%',
+          ipi: '35%',
+          icms: '-',
+        },
+      },
+    ],
+  },
+  {
+    anexo: 'Anexo III',
+    faixas: [
+      {
+        aliquota: 0.06,
+        deducao: 0,
+        impostos: {
+          irpj: '4%',
+          csll: '3.5%',
+          cofins: '12.82%',
+          pis: '2.78%',
+          cpp: '43.4%',
+          iss: '33.5%',
+        },
+      },
+      {
+        aliquota: 0.112,
+        deducao: 9360,
+        impostos: {
+          irpj: '4%',
+          csll: '3.5%',
+          cofins: '14.05%',
+          pis: '3.05%',
+          cpp: '43.4%',
+          iss: '32%',
+        },
+      },
+      {
+        aliquota: 0.135,
+        deducao: 17640,
+        impostos: {
+          irpj: '4%',
+          csll: '3.5%',
+          cofins: '13.64%',
+          pis: '2.96%',
+          cpp: '43.4%',
+          iss: '32.5%',
+        },
+      },
+      {
+        aliquota: 0.16,
+        deducao: 35640,
+        impostos: {
+          irpj: '4%',
+          csll: '3.5%',
+          cofins: '13.64%',
+          pis: '2.96%',
+          cpp: '43.4%',
+          iss: '32.5%',
+        },
+      },
+      {
+        aliquota: 0.21,
+        deducao: 125640,
+        impostos: {
+          irpj: '4%',
+          csll: '3.5%',
+          cofins: '12.82%',
+          pis: '2.78%',
+          cpp: '43.4%',
+          iss: '33.5%',
+        },
+      },
+      {
+        aliquota: 0.33,
+        deducao: 648000,
+        impostos: {
+          irpj: '35%',
+          csll: '15%',
+          cofins: '16.03%',
+          pis: '3.47%',
+          cpp: '30.5%',
+          iss: '-',
+        },
+      },
+    ],
+  },
+  {
+    anexo: 'Anexo IV',
+    faixas: [
+      {
+        aliquota: 0.045,
+        deducao: 0,
+        impostos: {
+          irpj: '18.8%',
+          csll: '15.2%',
+          cofins: '17.67%',
+          pis: '3.83%',
+          iss: '44.5%',
+        },
+      },
+      {
+        aliquota: 0.09,
+        deducao: 8100,
+        impostos: {
+          irpj: '19.8%',
+          csll: '15.2%',
+          cofins: '20.55%',
+          pis: '4.45%',
+          iss: '40%',
+        },
+      },
+      {
+        aliquota: 0.102,
+        deducao: 12420,
+        impostos: {
+          irpj: '20.8%',
+          csll: '15.2%',
+          cofins: '19.73%',
+          pis: '4.27%',
+          iss: '40%',
+        },
+      },
+      {
+        aliquota: 0.14,
+        deducao: 39780,
+        impostos: {
+          irpj: '17.8%',
+          csll: '19.2%',
+          cofins: '18.9%',
+          pis: '4.1%',
+          iss: '40%',
+        },
+      },
+      {
+        aliquota: 0.22,
+        deducao: 183780,
+        impostos: {
+          irpj: '18.8%',
+          csll: '19.2%',
+          cofins: '18.08%',
+          pis: '3.92%',
+          iss: '40%',
+        },
+      },
+      {
+        aliquota: 0.33,
+        deducao: 820000,
+        impostos: {
+          irpj: '53.5%',
+          csll: '21.5%',
+          cofins: '20.55%',
+          pis: '4.45%',
+          iss: '-',
+        },
+      },
+    ],
+  },
+  {
+    anexo: 'Anexo V',
+    faixas: [
+      {
+        aliquota: 0.155,
+        deducao: 0,
+        impostos: {
+          irpj: '25%',
+          csll: '15%',
+          cofins: '14.1%',
+          pis: '3.05%',
+          cpp: '28.85%',
+          iss: '14%',
+        },
+      },
+      {
+        aliquota: 0.18,
+        deducao: 4500,
+        impostos: {
+          irpj: '23%',
+          csll: '15%',
+          cofins: '14.1%',
+          pis: '3.05%',
+          cpp: '27.85%',
+          iss: '17%',
+        },
+      },
+      {
+        aliquota: 0.195,
+        deducao: 9900,
+        impostos: {
+          irpj: '24%',
+          csll: '15%',
+          cofins: '14.92%',
+          pis: '3.23%',
+          cpp: '23.85%',
+          iss: '19%',
+        },
+      },
+      {
+        aliquota: 0.205,
+        deducao: 17100,
+        impostos: {
+          irpj: '21%',
+          csll: '15%',
+          cofins: '15.74%',
+          pis: '3.41%',
+          cpp: '23.85%',
+          iss: '21%',
+        },
+      },
+      {
+        aliquota: 0.23,
+        deducao: 62100,
+        impostos: {
+          irpj: '23%',
+          csll: '12.5%',
+          cofins: '14.1%',
+          pis: '3.05%',
+          cpp: '23.85%',
+          iss: '23.5%',
+        },
+      },
+      {
+        aliquota: 0.305,
+        deducao: 540000,
+        impostos: {
+          irpj: '35%',
+          csll: '15.5%',
+          cofins: '16.44%',
+          pis: '3.56%',
+          cpp: '29.5%',
+          iss: '-',
+        },
+      },
+    ],
+  },
+];
+
+export const faixas = [
+  {
+    inicial: 0,
+    final: 180000,
+  },
+  {
+    inicial: 180001,
+    final: 360000,
+  },
+  {
+    inicial: 360001,
+    final: 720000,
+  },
+  {
+    inicial: 720001,
+    final: 1800000,
+  },
+  {
+    inicial: 1800001,
+    final: 3600000,
+  },
+  {
+    inicial: 3600001,
+    final: 4800000,
+  },
+];

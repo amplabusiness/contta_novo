@@ -1,0 +1,49 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.1</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="MailKit" Version="2.11.1" />
+    <PackageReference Include="MediatR" Version="8.0.1" />
+
+    <PackageReference Include="MimeKit" Version="2.11.0" />
+    <PackageReference Include="MongoDB.Bson" Version="2.13.0-beta1" />  
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Corporate.Contta.Schedule.Domain\Corporate.Contta.Schedule.Domain.csproj" />
+    <ProjectReference Include="..\Corporate.Contta.Schedule.Infra\Corporate.Contta.Schedule.Infra.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Behaviors\" />
+    <Folder Include="Mapping\Dto\Bloco\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Message.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Message.resx</DependentUpon>
+    </Compile>
+    <Compile Update="Resources\CorpoEmail.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>CorpoEmail.resx</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Update="Message.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>Message.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Resources\CorpoEmail.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>CorpoEmail.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+
+</Project>

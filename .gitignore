@@ -1,0 +1,40 @@
+# Node
+**/node_modules/
+**/dist/
+**/build/
+**/.next/
+**/.vercel/
+**/coverage/
+**/.turbo/
+
+# TypeScript
+**/*.tsbuildinfo
+
+# Environment files
+*.env
+*.env.*
+!/.docker/**
+
+# Logs
+**/logs/
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Archives & binaries
+*.zip
+*.rar
+*.7z
+*.tgz
+*.tar
+
+# .NET
+**/bin/
+**/obj/
+**/.vs/
+
+# Misc
+**/.idea/
+**/.vscode/

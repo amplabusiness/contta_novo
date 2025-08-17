@@ -1,0 +1,20 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Folder Include="ConttaECF\" />
+    <Folder Include="ConttaECD\" />
+    <Folder Include="Corporate.Contta.Schedule.SpedContta.Common\obj\Debug\TempPE\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="EPPlus" Version="5.3.2" />
+    <PackageReference Include="MongoDB.Bson" Version="2.13.0-beta1" />
+    <PackageReference Include="MongoDB.Driver" Version="2.11.0" />
+  </ItemGroup>
+
+</Project>

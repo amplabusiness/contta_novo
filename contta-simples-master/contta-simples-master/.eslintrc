@@ -1,0 +1,45 @@
+{
+  "parser": "babel-eslint",
+  "env": {
+    "es6": true,
+    "jest": true
+  },
+  "extends": ["airbnb", "prettier", "react-app", "plugin:prettier/recommended"],
+  "globals": {
+    "__DEV__": true
+  },
+  "parserOptions": {
+    "ecmaFeatures": {
+      "jsx": true
+    },
+    "ecmaVersion": 2019,
+    "sourceType": "module"
+  },
+  "plugins": ["react", "react-native", "jsx-a11y", "import", "react-hooks"],
+  "rules": {
+    "react/jsx-filename-extension": [
+      "error",
+      { "extensions": [".js", ".jsx"] }
+    ],
+    "import/prefer-default-export": "off",
+    "no-unused-vars": ["error", { "argsIgnorePattern": "^_" }],
+    "react/jsx-one-expression-per-line": "off",
+    "react-native/no-color-literals": "off",
+    "global-require": "off",
+    "react-native/no-raw-text": "off",
+    "react/prop-types": [2, { "skipUndeclared": true }],
+    "import/order": [
+      "error",
+      {
+        "groups": [
+          "external",
+          "index",
+          "sibling",
+          "parent",
+          "internal",
+          "builtin"
+        ]
+      }
+    ]
+  }
+}

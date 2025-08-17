@@ -1,0 +1,17 @@
+﻿using Contta.Inteligencia.Cnpj.Model.Entity;
+using System;
+using System.Collections.Generic;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace ConttaComsumidor.Models.Respositories
+{
+    public interface IRepositorio<T> where T: class
+    {
+        Task<T> Add(T entity);
+        void Delete(string id);
+        Task<IEnumerable<T>> GetAll();
+        Task<Empresa> Get(string cnpj);
+        void Dispose();
+    }
+}

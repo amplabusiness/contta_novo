@@ -1,0 +1,22 @@
+FROM mcr.microsoft.com/dotnet/core/aspnet:3.1-buster-slim AS base
+WORKDIR /app
+EXPOSE 80
+
+FROM mcr.microsoft.com/dotnet/core/sdk:3.1-buster AS build
+WORKDIR /src
+COPY ["Corporate.Contta.Schedule.Api/Corporate.Contta.Schedule.Api.csproj", "Corporate.Contta.Schedule.Api/"]
+COPY ["Corporate.Contta.Schedule.Domain/Corporate.Contta.Schedule.Domain.csproj", "Corporate.Contta.Schedule.Domain/"]
+COPY ["Corporate.Contta.Schedule.Application/Corporate.Contta.Schedule.Application.csproj", "Corporate.Contta.Schedule.Application/"]
+COPY ["Corporate.Contta.Schedule.Infra/Corporate.Contta.Schedule.Infra.csproj", "Corporate.Contta.Schedule.Infra/"]
+RUN dotnet restore "Corporate.Contta.Schedule.Api/Corporate.Contta.Schedule.Api.csproj"
+COPY . .
+WORKDIR "/src/Corporate.Contta.Schedule.Api" 
+RUN dotnet build "Corporate.Contta.Schedule.Api.csproj" -c Release -o /app/build
+
+FROM build AS publish
+RUN dotnet publish "Corporate.Contta.Schedule.Api.csproj" -c Release -o /app/publish
+
+FROM base AS final
+WORKDIR /app
+COPY --from=publish /app/publish .
+ENTRYPOINT ["dotnet", "Corporate.Contta.Schedule.Api.dll"]

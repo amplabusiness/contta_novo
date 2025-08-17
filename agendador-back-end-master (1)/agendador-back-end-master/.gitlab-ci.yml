@@ -1,0 +1,30 @@
+variables:
+  CONTAINER_DEV_IMAGE: registry.gitlab.com/conttaampla/agendador-back-end:latest
+
+build_dotnet:
+  stage: build
+  image: mcr.microsoft.com/dotnet/core/sdk:3.1
+  script:
+    - dotnet restore Corporate.Contta.Schedule.Api/
+    - dotnet publish Corporate.Contta.Schedule.Api/ -c Release
+    - cp Corporate.Contta.Schedule.Api/Dockerfile Corporate.Contta.Schedule.Api/bin/Release/netcoreapp3.1/publish/
+  artifacts:
+    expire_in: 2 hrs
+    paths:
+      - Corporate.Contta.Schedule.Api/bin/Release/netcoreapp3.1/publish/
+  only:
+    - master
+
+deploy_docker:
+  stage: deploy
+  image: docker:latest
+  services:
+    - docker:dind
+  script:
+    - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN registry.gitlab.com
+    - cd Corporate.Contta.Schedule.Api/bin/Release/netcoreapp3.1/publish/ && docker build --pull -t $CONTAINER_DEV_IMAGE .
+    - docker push $CONTAINER_DEV_IMAGE
+  only:
+    - master
+  dependencies:
+    - build_dotnet

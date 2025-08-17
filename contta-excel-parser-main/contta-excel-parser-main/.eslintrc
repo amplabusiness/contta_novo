@@ -1,0 +1,36 @@
+{
+	"env": {
+	  "es2021": true,
+	  "node": true
+	},
+	"extends": [
+	  "airbnb-base",
+    "plugin:prettier/recommended"
+	],
+	"parser": "@typescript-eslint/parser",
+	"parserOptions": {
+	  "ecmaVersion": 11,
+	  "sourceType": "module"
+	},
+	"plugins": [
+	  "@typescript-eslint"
+	],
+	"rules": {
+    "import/prefer-default-export": "off",
+    "import/no-duplicates": "off",
+    "no-console": ["warn", { "allow": ["log"] }],
+    "import/extensions": [
+      "error",
+      "ignorePackages",
+      {
+        "ts": "never",
+        "tsx": "never"
+      }
+   ]
+	},
+  "settings": {
+    "import/resolver": {
+      "typescript": {}
+    }
+  }
+}

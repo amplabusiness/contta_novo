@@ -1,0 +1,67 @@
+services:
+  - type: web
+    name: contta-searchapi-staging
+    env: docker
+    plan: starter
+    autoDeploy: true
+    rootDir: contta-search-api-main/contta-search-api-main
+    dockerfilePath: Dockerfile
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 5001
+      - key: MONGODB_URI
+        sync: false
+      - key: OIDC_ISSUER
+        value: https://<KEYCLOAK_HOST>/realms/contta
+      - key: OIDC_AUDIENCE
+        value: contta-portal
+    healthCheckPath: /health
+
+  - type: web
+    name: contta-excelparser-staging
+    env: docker
+    plan: starter
+    autoDeploy: true
+    rootDir: contta-excel-parser-main/contta-excel-parser-main
+    dockerfilePath: Dockerfile
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 5002
+      - key: PRODUCTION_URL
+        value: https://<PORTAL_HOST>
+      - key: OIDC_ISSUER
+        value: https://<KEYCLOAK_HOST>/realms/contta
+      - key: OIDC_AUDIENCE
+        value: contta-portal
+    healthCheckPath: /health
+
+  - type: web
+    name: contta-keycloak-staging
+    env: docker
+    plan: starter
+    autoDeploy: true
+    rootDir: .docker/keycloak
+    dockerfilePath: Dockerfile
+    envVars:
+      - key: KEYCLOAK_ADMIN
+        value: admin
+      - key: KEYCLOAK_ADMIN_PASSWORD
+        sync: false
+    healthCheckPath: /realms/master/.well-known/openid-configuration
+
+  - type: web
+    name: contta-website-staging
+    env: node
+    plan: starter
+    autoDeploy: true
+    rootDir: contta-website-main/contta-website-main
+    buildCommand: npm ci && npm run build
+    startCommand: npm run start
+    envVars:
+      - key: NODE_ENV
+        value: production
+    healthCheckPath: /
