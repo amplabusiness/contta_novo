@@ -1,3 +1,4 @@
+// Trigger deploy: no-op change
 import Layout from '../components/Layout';
 import Header from '../components/Header';
 import LandingSection from '../components/Sections/LandingSection';
@@ -7,7 +8,7 @@ import ContactsSection from '../components/Sections/ContactsSection';
 import Footer from '../components/Footer';
 import VideoOverlay from '../components/VideoOverlay';
 
-const Home: React.FC = () => {
+const Home = () => {
   return (
     <Layout>
       <Header />
