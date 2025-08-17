@@ -31,11 +31,14 @@ Sempre versionamos exemplos com `.env.example` e não versionamos `.env` reais.
 ## Deploy
 - Vercel (frontends): veja `docs/VERCEL-DEPLOY.md`.
 - Render (APIs/Keycloak): veja `docs/DEPLOY-STAGING.md` e `render.yaml`.
+ - Railway (APIs): veja `docs/RAILWAY-DEPLOY.md`.
 
 ## CI/CD
 - Vercel via GitHub Actions: `.github/workflows/vercel-website.yml` e `.github/workflows/vercel-portal.yml`
 - Adicione os secrets no GitHub (Actions → Secrets):
   - `VERCEL_TOKEN`, `VERCEL_ORG_ID`, `VERCEL_PROJECT_ID_WEBSITE`, `VERCEL_PROJECT_ID_PORTAL`
+ - Railway via GitHub Actions: `.github/workflows/deploy-railway.yml` (necessita secrets RAILWAY_*)
+ - Smoke tests pós-deploy: `.github/workflows/smoke-post-deploy.yml` (necessita secrets SMOKE_* URLs)
 
 ## Desenvolvimento local
 - Docker Compose com Keycloak, MailHog, Mongo, RabbitMQ, APIs e Website: `docker-compose.yml`

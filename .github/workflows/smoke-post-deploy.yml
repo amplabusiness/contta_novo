@@ -4,6 +4,10 @@ on:
   workflow_dispatch:
   repository_dispatch:
     types: [post-deploy]
+  workflow_run:
+    workflows: ["Deploy Backends to Railway"]
+    types:
+      - completed
 
 jobs:
   smoke:
