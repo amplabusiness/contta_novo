@@ -1,0 +1,44 @@
+name: CI Backend (Node APIs)
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'contta-search-api-main/contta-search-api-main/**'
+      - 'contta-excel-parser-main/contta-excel-parser-main/**'
+      - '.github/workflows/ci-backend.yml'
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        project:
+          - contta-search-api-main/contta-search-api-main
+          - contta-excel-parser-main/contta-excel-parser-main
+    defaults:
+      run:
+        working-directory: ${{ matrix.project }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: ${{ matrix.project }}/package-lock.json
+
+      - name: Install dependencies
+        run: |
+          if [ -f package-lock.json ]; then npm ci; else npm i; fi
+
+      - name: Build
+        run: npm run build
+
+      - name: Typecheck (emit d.ts only)
+        run: npm run postbuild
+        continue-on-error: true
