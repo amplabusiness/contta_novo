@@ -5,6 +5,7 @@ import path from 'path';
 
 import '@/config/env';
 import '@/config/database';
+import { isDbConnected } from '@/config/database';
 import { ncmRouter } from './routes/ncm.routes';
 import { cfopRouter } from './routes/cfop.routes';
 import { ajusteApuracaoRouter } from './routes/ajusteApuracao.routes';
@@ -51,7 +52,8 @@ app.use('/api', authMiddleware, adminRouter);
 // --- HEALTH --- //
 
 app.get('/health', (_req, res) => {
-  res.status(200).json({ status: 'ok' });
+  const db = isDbConnected() ? 'connected' : 'disconnected';
+  res.status(200).json({ status: 'ok', db });
 });
 
 // --- PRODUCTION ---
