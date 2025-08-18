@@ -2,6 +2,7 @@ import cors from 'cors';
 import express from 'express';
 import morgan from 'morgan';
 import path from 'path';
+import fs from 'fs';
 
 import '@/config/env';
 import '@/config/database';
@@ -59,12 +60,15 @@ app.get('/health', (_req, res) => {
 // --- PRODUCTION ---
 
 const distPath = path.join(__dirname, '..', 'dist');
+const spaIndex = path.join(__dirname, '..', 'dist', 'lib', 'index.html');
 
-if (process.env.NODE_ENV === 'production') {
+if (process.env.NODE_ENV === 'production' && fs.existsSync(spaIndex)) {
   app.use(express.static(distPath));
-
-  app.get('*', (request, response) => {
-    response.sendFile(path.join(__dirname, '..', 'dist', 'lib', 'index.html'));
+  app.get('*', (_req, res) => res.sendFile(spaIndex));
+} else {
+  // Provide a friendly root response for API-only deployments
+  app.get('/', (_req, res) => {
+    res.status(200).json({ name: 'contta-search-api', status: 'ok', note: 'no frontend bundle' });
   });
 }
 
