@@ -28,6 +28,8 @@ services:
         value: admin
       - key: KEYCLOAK_ADMIN_PASSWORD
         sync: false
+      - key: KC_CACHE
+        value: local
       # Keycloak behind Render proxy: disable strict hostname or set proxy headers
       - key: KC_HOSTNAME_STRICT
         value: "false"
