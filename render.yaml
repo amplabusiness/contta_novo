@@ -17,7 +17,7 @@ services:
     name: contta-keycloak-staging
     runtime: docker
     plan: starter
-  region: oregon
+    region: oregon
     autoDeploy: true
     rootDir: .docker/keycloak
     dockerfilePath: Dockerfile
@@ -32,12 +32,11 @@ services:
     name: contta-searchapi-staging
     runtime: docker
     plan: starter
-  region: oregon
+    region: oregon
     autoDeploy: true
     rootDir: contta-search-api-main/contta-search-api-main
     dockerfilePath: Dockerfile
-    envVarGroups:
-      - contta-production
+  # envVarGroups removido (não suportado por serviço)
     envVars:
       - key: NODE_ENV
         value: production
@@ -51,12 +50,11 @@ services:
     name: contta-excelparser-staging
     runtime: docker
     plan: starter
-  region: oregon
+    region: oregon
     autoDeploy: true
     rootDir: contta-excel-parser-main/contta-excel-parser-main
     dockerfilePath: Dockerfile
-    envVarGroups:
-      - contta-production
+  # envVarGroups removido (não suportado por serviço)
     envVars:
       - key: NODE_ENV
         value: production
@@ -70,23 +68,22 @@ services:
     name: contta-consumerxml-staging
     runtime: docker
     plan: starter
-  region: oregon
+    region: oregon
     autoDeploy: true
     rootDir: agendador-back-end-master/agendador-back-end-master/ConsumerXml
     dockerfilePath: Dockerfile
-    envVarGroups:
-      - contta-production
+  # envVarGroups removido (não suportado por serviço)
     envVars:
       - key: RABBITMQ_QUEUE
         value: Modelo55
       - key: RABBITMQ_PREFETCH
         value: 20
       - key: RabbitMQ__Durable
-        value: true
+        value: "true"
       - key: RabbitMQ__Exclusive
-        value: false
+        value: "false"
       - key: RabbitMQ__AutoDelete
-        value: false
+        value: "false"
       - key: RabbitMQ__DeadLetterExchange
         value: dlx.nfe
       - key: RabbitMQ__DeadLetterRoutingKey
