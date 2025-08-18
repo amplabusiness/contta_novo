@@ -1,0 +1,26 @@
+services:
+  - type: web
+    name: conttatax-api
+    env: docker
+    plan: starter
+    autoDeploy: true
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: MONGO_URI
+        sync: false
+      - key: AMQP_URL
+        sync: false
+    healthCheckPath: /health
+  - type: worker
+    name: conttatax-worker
+    env: docker
+    plan: starter
+    autoDeploy: true
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: MONGO_URI
+        sync: false
+      - key: AMQP_URL
+        sync: false
