@@ -5,7 +5,7 @@ Este guia descreve como publicar o ambiente de staging com variáveis seguras.
 ## 1) Provisionamento
 
 - Vercel (Portal/Website)
-- Render (APIs Node e Keycloak) – alternativa: Railway/Fly
+- Render (APIs Node e Keycloak)
 - MongoDB Atlas (cluster M0/M10) – DB contta
 - CloudAMQP (RabbitMQ gerenciado) – plano starter
 - S3 compatível (Backblaze B2/AWS) – opcional

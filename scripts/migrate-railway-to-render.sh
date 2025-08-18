@@ -4,7 +4,7 @@
 echo "🚀 Migração Railway → Render"
 echo "============================"
 
-echo "❌ Railway: 4 serviços com falha de deploy"
+echo "✅ Render: 4 serviços com falha de deploy"
 echo "✅ Render: Configuração pronta via render.yaml"
 echo ""
 

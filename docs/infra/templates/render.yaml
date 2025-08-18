@@ -7,9 +7,9 @@ services:
     envVars:
       - key: APP_ENV
         value: production
-      - key: MONGO_URI
+      - key: MONGODB_URI
         sync: false
-      - key: AMQP_URL
+      - key: RABBITMQ_URL
         sync: false
     healthCheckPath: /health
   - type: worker
@@ -20,7 +20,7 @@ services:
     envVars:
       - key: APP_ENV
         value: production
-      - key: MONGO_URI
+      - key: MONGODB_URI
         sync: false
-      - key: AMQP_URL
+      - key: RABBITMQ_URL
         sync: false

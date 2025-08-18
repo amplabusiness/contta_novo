@@ -21,7 +21,7 @@
 - **📊 Monitoring**: Processes background automatizados
 
 #### **🎪 DECISÕES TÉCNICAS AUTÔNOMAS**
-- **Platform Migration**: Railway → Render (decisão IA)
+- **Platform Migration**: Render (decisão IA)
 - **API Strategy**: HTTPS fallback automático
 - **Error Handling**: Soluções implementadas automaticamente
 - **Service Orchestration**: Ordem otimizada (Keycloak primeiro)
