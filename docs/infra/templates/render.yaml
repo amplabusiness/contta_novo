@@ -1,3 +1,14 @@
+  - type: web
+    name: contta-keycloak-staging
+    env: docker
+    plan: starter
+    autoDeploy: true
+    envVars:
+      - key: KC_HOSTNAME
+        value: contta-keycloak-staging.onrender.com
+      - key: KEYCLOAK_ADMIN_PASSWORD
+        sync: false
+    healthCheckPath: /health
 services:
   - type: web
     name: conttatax-api
