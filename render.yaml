@@ -3,7 +3,7 @@ envVarGroups:
   - name: contta-production
     envVars:
       - key: OIDC_ISSUER
-        sync: false
+        value: https://contta-keycloak-staging:8080/realms/contta
       - key: CORS_ORIGINS
         sync: false
       - key: PRODUCTION_URL
@@ -42,6 +42,8 @@ services:
         value: production
       - key: PORT
         value: 5001
+      - key: OIDC_ISSUER
+        value: https://contta-keycloak-staging:8080/realms/contta
       - key: OIDC_AUDIENCE
         value: contta-portal
     healthCheckPath: /health
@@ -60,6 +62,8 @@ services:
         value: production
       - key: PORT
         value: 5002
+      - key: OIDC_ISSUER
+        value: https://contta-keycloak-staging:8080/realms/contta
       - key: OIDC_AUDIENCE
         value: contta-portal
     healthCheckPath: /health
