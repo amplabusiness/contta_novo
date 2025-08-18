@@ -46,6 +46,8 @@ services:
         value: https://contta-keycloak-staging:8080/realms/contta
       - key: OIDC_AUDIENCE
         value: contta-portal
+      - key: MONGODB_URI
+        value: mongodb+srv://usuario:senha@host.mongodb.net/contta?retryWrites=true&w=majority
     healthCheckPath: /health
 
   - type: web
