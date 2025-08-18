@@ -23,11 +23,4 @@ jobs:
       - name: Install Railway CLI
         run: npm i -g @railway/cli
 
-      - name: Deploy ConsumerXml
-        env:
-          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
-          RAILWAY_PROJECT_ID: ${{ secrets.RAILWAY_PROJECT_ID_CONSUMER }}
-          RAILWAY_SERVICE_ID: ${{ secrets.RAILWAY_SERVICE_ID_CONSUMER }}
-        working-directory: agendador-back-end-master/agendador-back-end-master/ConsumerXml
-        run: |
-          railway up --ci
+
