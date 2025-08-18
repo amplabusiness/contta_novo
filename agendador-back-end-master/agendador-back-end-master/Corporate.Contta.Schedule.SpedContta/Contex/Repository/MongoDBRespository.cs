@@ -1,4 +1,6 @@
-﻿using MongoDB.Driver;
+﻿
+using System;
+using MongoDB.Driver;
 
 namespace Corporate.Contta.Schedule.SpedContta.Data.Repository
 {
