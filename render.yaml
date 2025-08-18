@@ -9,7 +9,7 @@ envVarGroups:
       - key: PRODUCTION_URL
         sync: false
       - key: MONGODB_URI
-        sync: false
+        value: mongodb+srv://usuario:senha@host.mongodb.net/contta?retryWrites=true&w=majority
       - key: RABBITMQ_URL
         sync: false
 services:

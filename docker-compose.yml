@@ -1,19 +1,5 @@
-  searchapi:
-    build:
-      context: ./contta-search-api-main/contta-search-api-main
-    environment:
-      NODE_ENV: production
-      PORT: "5001"
-      MONGODB_URI: mongodb://mongo:27017/contta
-      OIDC_ISSUER: http://keycloak:8080/realms/contta
-      OIDC_AUDIENCE: contta-portal
-    ports:
-      - "5001:5001"
-    depends_on:
-      - mongo
-      - keycloak
-    version: '3.8'
-    services:
+version: '3.8'
+services:
       rabbitmq:
         image: rabbitmq:3.13-management
         container_name: rabbitmq
