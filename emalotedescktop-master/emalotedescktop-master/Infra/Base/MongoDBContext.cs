@@ -21,14 +21,15 @@ namespace EmaloteContta.Infra.Base
             try
             {
                 BsonDefaults.GuidRepresentation = GuidRepresentation.Standard;
-                ConnectionString = "mongodb://contta:contta123456@192.46.218.34:27017/?authSource=admin&readPreference=primary&ssl=false";
-                DatabaseName = "conttadb";
+                ConnectionString = Environment.GetEnvironmentVariable("MONGODB_URI");
+                DatabaseName = Environment.GetEnvironmentVariable("MONGODB_DATABASE");
 
-                //ConnectionString = "mongodb://localhost:27017/";
-                //DatabaseName = "conttadb";
+                if (string.IsNullOrEmpty(ConnectionString) || string.IsNullOrEmpty(DatabaseName))
+                {
+                    throw new Exception("MongoDB connection string or database name not set in environment variables.");
+                }
 
                 MongoClientSettings settings = MongoClientSettings.FromUrl(new MongoUrl(ConnectionString));
-                //comentar essa linha se for executar no banco local.
                 settings.SslSettings = new SslSettings { EnabledSslProtocols = System.Security.Authentication.SslProtocols.Tls12 };
 
                 var client = new MongoClient(settings);
@@ -37,7 +38,7 @@ namespace EmaloteContta.Infra.Base
             }
             catch (Exception ex)
             {
-                throw new Exception("Não foi possivel acessar o servidor", ex);
+                throw new Exception("N\u00e3o foi possivel acessar o servidor", ex);
             }
         }
 
