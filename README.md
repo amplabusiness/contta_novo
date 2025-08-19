@@ -9,6 +9,8 @@
 
 Monorepo com múltiplos apps (frontend e backend) e automações de deploy.
 
+Leia primeiro: docs/USAGE.md (como usar as APIs e frontends).
+
 ## Apps principais
 - Website (Next.js): `contta-website-main/contta-website-main`
 - Portal (Create React App): `portal-contta-master/portal-contta-master`
