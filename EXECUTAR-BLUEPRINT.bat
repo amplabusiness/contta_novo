@@ -1,33 +1,39 @@
 @echo off
-echo 🔑 RENDER API TOKEN SETUP E EXECUÇÃO AUTOMÁTICA
-echo ================================================
+setlocal EnableExtensions EnableDelayedExpansion
+chcp 65001 >nul
+
+REM Garante que caminhos relativos funcionem ao clicar duas vezes
+pushd "%~dp0"
+
+echo 🔑 Deploy 1‑Clique (Render Blueprint)
+echo =====================================
+echo.
+echo Como obter o token:
+echo  - https://dashboard.render.com/ → Account Settings → API Keys → Create API Key
 echo.
 
-echo 📋 Passo 1: Obter RENDER_API_TOKEN
-echo 1. Acesse: https://dashboard.render.com/
-echo 2. Login na sua conta
-echo 3. Avatar (canto superior direito) → Account Settings
-echo 4. Menu lateral → API Keys
-echo 5. Create API Key → Nome: "Contta Deploy" → Create
-echo 6. COPIE o token (rnd_...)
-echo.
-
-set /p token="Cole seu RENDER_API_TOKEN aqui: "rnd_QYyuv9vDdFpAaG7tbBVpWsKRec0K
+REM Permite usar variável de ambiente já definida
+if not "!RENDER_API_TOKEN!"=="" (
+    set "token=!RENDER_API_TOKEN!"
+) else (
+    set /p token="Cole seu RENDER_API_TOKEN (rnd_...): "
+)
 
 if "%token%"=="" (
-    echo ❌ Token não fornecido!
-    pause
-    exit /b 1
+        echo ❌ Token não fornecido!
+        goto :end
 )
 
 echo.
-echo ⚡ Executando Blueprint Deploy...
+echo ⚡ Iniciando deploy do Blueprint no Render...
 echo.
 
-powershell -ExecutionPolicy Bypass -File "scripts\auto-blueprint-deploy.ps1" -RenderApiToken "%token%"
+powershell -NoProfile -ExecutionPolicy Bypass -File "scripts\auto-blueprint-deploy.ps1" -RenderApiToken "%token%"
 
 echo.
-echo 🎯 Execução concluída!
-echo Verifique os logs acima para Service IDs e URLs.
+echo 🎯 Processo finalizado. Consulte as URLs e status nos logs acima.
 echo.
+
+:end
+popd
 pause

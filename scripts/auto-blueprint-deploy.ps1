@@ -20,6 +20,42 @@ Write-Host "Repo: amplabusiness/contta_novo"
 Write-Host "Blueprint: render.yaml"
 Write-Host ""
 
+# ===== Coleta/Defaults de variáveis necessárias =====
+
+# URL pública do Keycloak (default para serviço atual)
+$KeycloakPublicUrl = if ($env:KEYCLOAK_PUBLIC_URL -and $env:KEYCLOAK_PUBLIC_URL.Trim() -ne '') { $env:KEYCLOAK_PUBLIC_URL.TrimEnd('/') } else { "https://contta-keycloak-staging.onrender.com" }
+
+# OIDC Issuer (default baseado no Keycloak público)
+$OIDCIssuer = if ($env:OIDC_ISSUER -and $env:OIDC_ISSUER.Trim() -ne '') { $env:OIDC_ISSUER.TrimEnd('/') } else { "$KeycloakPublicUrl/realms/contta" }
+
+# CORS_ORIGINS default
+$CorsOrigins = if ($env:CORS_ORIGINS -and $env:CORS_ORIGINS.Trim() -ne '') { $env:CORS_ORIGINS } else { "*.vercel.app,https://localhost:3000" }
+
+# PRODUCTION_URL opcional
+$ProductionUrl = $env:PRODUCTION_URL
+
+# Rabbit opcional
+$RabbitUrl = $env:RABBITMQ_URL
+
+# KEYCLOAK_ADMIN_PASSWORD
+$KeycloakAdminPassword = $env:KEYCLOAK_ADMIN_PASSWORD
+if (-not $KeycloakAdminPassword -or $KeycloakAdminPassword.Trim() -eq '') {
+    $sec = Read-Host -Prompt "Defina KEYCLOAK_ADMIN_PASSWORD (não exibido)" -AsSecureString
+    $KeycloakAdminPassword = [Runtime.InteropServices.Marshal]::PtrToStringAuto([Runtime.InteropServices.Marshal]::SecureStringToBSTR($sec))
+}
+
+# MONGODB_URI
+$MongoUri = $env:MONGODB_URI
+if (-not $MongoUri -or $MongoUri.Trim() -eq '') {
+    Write-Host "Exemplo Atlas SRV: mongodb+srv://USER:PASS@cluster0.xxxx.mongodb.net/contta?retryWrites=true&w=majority" -ForegroundColor DarkGray
+    $MongoUri = Read-Host -Prompt "Cole sua MONGODB_URI"
+}
+
+if (-not $MongoUri -or $MongoUri.Trim() -eq '') {
+    Write-Error "MONGODB_URI não fornecida. Abortando."
+    exit 1
+}
+
 # Blueprint payload
 $blueprintPayload = @{
     type = "blueprint"
@@ -33,7 +69,11 @@ $blueprintPayload = @{
             plan = "starter"
             envVars = @{
                 KEYCLOAK_ADMIN = "admin"
-                KEYCLOAK_ADMIN_PASSWORD = "$($env:KEYCLOAK_ADMIN_PASSWORD)"
+                KEYCLOAK_ADMIN_PASSWORD = "$KeycloakAdminPassword"
+                KC_HOSTNAME = "$KeycloakPublicUrl"
+                KC_HOSTNAME_URL = "$KeycloakPublicUrl"
+                KC_HOSTNAME_ADMIN_URL = "$KeycloakPublicUrl"
+                KEYCLOAK_PUBLIC_URL = "$KeycloakPublicUrl"
             }
         },
         @{
@@ -43,10 +83,10 @@ $blueprintPayload = @{
             envVars = @{
                 NODE_ENV = "production"
                 PORT = "5001"
-                MONGODB_URI = "$($env:MONGODB_URI)"
-                OIDC_ISSUER = "${env:OIDC_ISSUER}" # fallback handled client-side if empty
+                MONGODB_URI = "$MongoUri"
+                OIDC_ISSUER = "$OIDCIssuer"
                 OIDC_AUDIENCE = "contta-portal"
-                CORS_ORIGINS = "$($env:CORS_ORIGINS)"
+                CORS_ORIGINS = "$CorsOrigins"
             }
         },
         @{
@@ -56,9 +96,9 @@ $blueprintPayload = @{
             envVars = @{
                 NODE_ENV = "production"
                 PORT = "5002"
-                OIDC_ISSUER = "${env:OIDC_ISSUER}"
+                OIDC_ISSUER = "$OIDCIssuer"
                 OIDC_AUDIENCE = "contta-portal"
-                PRODUCTION_URL = "$($env:PRODUCTION_URL)"
+                PRODUCTION_URL = "$ProductionUrl"
             }
         },
         @{
@@ -66,7 +106,7 @@ $blueprintPayload = @{
             env = "docker"
             plan = "starter"
             envVars = @{
-                RABBITMQ_URL = "$($env:RABBITMQ_URL)"
+                RABBITMQ_URL = "$RabbitUrl"
                 RABBITMQ_QUEUE = "Modelo55"
                 RABBITMQ_PREFETCH = "20"
                 "RabbitMQ__Durable" = "true"
