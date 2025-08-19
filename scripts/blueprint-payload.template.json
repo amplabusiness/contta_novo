@@ -1,0 +1,37 @@
+{
+    "repo": "https://github.com/amplabusiness/contta_novo",
+    "branch": "main",
+    "blueprintPath": "render.yaml",
+    "serviceDetails": [
+        {
+            "name": "contta-keycloak-staging",
+            "envVars": {
+                "KEYCLOAK_ADMIN_PASSWORD": "__KEYCLOAK_ADMIN_PASSWORD__",
+                "KC_HOSTNAME": "__KEYCLOAK_PUBLIC_URL__",
+                "KC_HOSTNAME_URL": "__KEYCLOAK_PUBLIC_URL__",
+                "KC_HOSTNAME_ADMIN_URL": "__KEYCLOAK_PUBLIC_URL__"
+            }
+        },
+        {
+            "name": "contta-searchapi-staging",
+            "envVars": {
+                "MONGODB_URI": "__MONGODB_URI__",
+                "OIDC_ISSUER": "__OIDC_ISSUER__",
+                "CORS_ORIGINS": "__CORS_ORIGINS__"
+            }
+        },
+        {
+            "name": "contta-excelparser-staging",
+            "envVars": {
+                "OIDC_ISSUER": "__OIDC_ISSUER__",
+                "PRODUCTION_URL": "__PRODUCTION_URL__"
+            }
+        },
+        {
+            "name": "contta-consumerxml-staging",
+            "envVars": {
+                "RABBITMQ_URL": "__RABBITMQ_URL__"
+            }
+        }
+    ]
+}

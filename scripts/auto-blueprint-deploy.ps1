@@ -63,6 +63,7 @@ function Watch-RenderService {
 # Main Script
 # =============================================================================
 
+# --- Validação do Token ---
 if (-not $RenderApiToken) {
     $RenderApiToken = $env:RENDER_API_TOKEN
 }
@@ -74,8 +75,7 @@ if (-not $RenderApiToken) {
 Write-Host "🚀 EXECUTANDO BLUEPRINT DEPLOY AUTOMATICAMENTE" -ForegroundColor Green
 Write-Host "=" * 50
 
-# --- Coleta/Defaults de variáveis necessárias ---
-
+# --- Coleta de Segredos ---
 $KeycloakPublicUrl = if ($env:KEYCLOAK_PUBLIC_URL -and $env:KEYCLOAK_PUBLIC_URL.Trim() -ne '') { $env:KEYCLOAK_PUBLIC_URL.TrimEnd('/') } else { "https://contta-keycloak-staging.onrender.com" }
 $OIDCIssuer = if ($env:OIDC_ISSUER -and $env:OIDC_ISSUER.Trim() -ne '') { $env:OIDC_ISSUER.TrimEnd('/') } else { "$KeycloakPublicUrl/realms/contta" }
 $CorsOrigins = if ($env:CORS_ORIGINS -and $env:CORS_ORIGINS.Trim() -ne '') { $env:CORS_ORIGINS } else { "*.vercel.app,https://localhost:3000" }
@@ -99,60 +99,27 @@ if (-not ($MongoUri -and $MongoUri.Trim() -ne '')) {
     exit 1
 }
 
-# --- Construção do Payload ---
+# --- Construção do Payload a partir do Template ---
+$templatePath = Join-Path $PSScriptRoot "blueprint-payload.template.json"
+$payloadJson = Get-Content -Path $templatePath -Raw
+$payloadJson = $payloadJson -replace '__KEYCLOAK_ADMIN_PASSWORD__', $KeycloakAdminPassword
+$payloadJson = $payloadJson -replace '__KEYCLOAK_PUBLIC_URL__', $KeycloakPublicUrl
+$payloadJson = $payloadJson -replace '__MONGODB_URI__', $MongoUri
+$payloadJson = $payloadJson -replace '__OIDC_ISSUER__', $OIDCIssuer
+$payloadJson = $payloadJson -replace '__CORS_ORIGINS__', $CorsOrigins
+$payloadJson = $payloadJson -replace '__PRODUCTION_URL__', $ProductionUrl
+$payloadJson = $payloadJson -replace '__RABBITMQ_URL__', $RabbitUrl
 
-$blueprintPayload = @{
-    repo = "https://github.com/amplabusiness/contta_novo"
-    branch = "main"
-    blueprintPath = "render.yaml"
-    serviceDetails = @(
-        @{
-            name = "contta-keycloak-staging"
-            envVars = @{
-                KEYCLOAK_ADMIN_PASSWORD = $KeycloakAdminPassword
-                KC_HOSTNAME = $KeycloakPublicUrl
-                KC_HOSTNAME_URL = $KeycloakPublicUrl
-                KC_HOSTNAME_ADMIN_URL = $KeycloakPublicUrl
-            }
-        },
-        @{
-            name = "contta-searchapi-staging"
-            envVars = @{
-                MONGODB_URI = $MongoUri
-                OIDC_ISSUER = $OIDCIssuer
-                CORS_ORIGINS = $CorsOrigins
-            }
-        },
-        @{
-            name = "contta-excelparser-staging"
-            envVars = @{
-                OIDC_ISSUER = $OIDCIssuer
-                PRODUCTION_URL = $ProductionUrl
-            }
-        },
-        @{
-            name = "contta-consumerxml-staging"
-            envVars = @{
-                RABBITMQ_URL = $RabbitUrl
-            }
-        }
-    )
-}
-
+# --- Execução e Monitoramento ---
 $headers = @{
     "Authorization" = "Bearer $RenderApiToken"
     "Content-Type"  = "application/json"
     "Accept"        = "application/json"
 }
 
-# --- Execução e Monitoramento ---
-
 Write-Host "📋 Executando Blueprint Deploy..." -ForegroundColor Yellow
-$body = $blueprintPayload | ConvertTo-Json -Depth 10
-
-# Envolvendo a chamada da API em um bloco try/catch para melhor tratamento de erros
 try {
-    $response = Invoke-RestMethod -Uri "https://api.render.com/v1/blueprints" -Method Post -Headers $headers -Body $body
+    $response = Invoke-RestMethod -Uri "https://api.render.com/v1/blueprints" -Method Post -Headers $headers -Body $payloadJson
 
     Write-Host "✅ Blueprint Deploy iniciado com sucesso!" -ForegroundColor Green
     $blueprintId = $response.id
