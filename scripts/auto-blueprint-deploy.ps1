@@ -56,13 +56,33 @@ if (-not $RenderApiToken -or $RenderApiToken.Trim() -eq '') {
     Write-Error 'RENDER_API_TOKEN é obrigatório. Defina em env ou informe quando solicitado.'
 }
 
-# 2) Ler template
+# 2) Montar payload (com template, se existir; senão, fallback dinâmico)
 $templatePath = Join-Path $PSScriptRoot 'blueprint-payload.template.json'
-if (-not (Test-Path -LiteralPath $templatePath)) {
-    Write-Error "Template não encontrado: $templatePath"
+if (Test-Path -LiteralPath $templatePath) {
+    $templateRaw = Get-Content -LiteralPath $templatePath -Raw -Encoding UTF8
+    $payload = $templateRaw | ConvertFrom-Json
+} else {
+    Write-Warning "Template não encontrado: $templatePath. Usando payload dinâmico."
+    $payload = [pscustomobject]@{
+        repo = 'https://github.com/amplabusiness/contta_novo'
+        branch = 'main'
+        blueprintPath = 'render.yaml'
+        serviceDetails = @(
+            [pscustomobject]@{
+                name = 'contta-searchapi-staging'
+                envVars = @{ CORS_ORIGINS = '*.vercel.app,https://localhost:3000' }
+            },
+            [pscustomobject]@{
+                name = 'contta-excelparser-staging'
+                envVars = @{ PRODUCTION_URL = '' }
+            },
+            [pscustomobject]@{
+                name = 'contta-consumerxml-staging'
+                envVars = @{}
+            }
+        )
+    }
 }
-$templateRaw = Get-Content -LiteralPath $templatePath -Raw -Encoding UTF8
-$payload = $templateRaw | ConvertFrom-Json
 
 # 3) Aplicar overrides (se fornecidos)
 function Get-ServiceByName([object]$payload, [string]$serviceName) {
