@@ -29,9 +29,15 @@ const defaultCorsChecker = (origin: string | undefined, callback: any) => {
   return callback(new Error('Not allowed by CORS'));
 };
 
+const originChecker = (origin: string | undefined, callback: any) => {
+  if (!origin) return callback(null, true);
+  if (corsOrigins.length && corsOrigins.includes(origin)) return callback(null, true);
+  return defaultCorsChecker(origin, callback);
+};
+
 app.use(
   cors({
-    origin: corsOrigins.length > 0 ? corsOrigins : defaultCorsChecker,
+    origin: originChecker,
     exposedHeaders: ['Content-Disposition'],
   }),
 );

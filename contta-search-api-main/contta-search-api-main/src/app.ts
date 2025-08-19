@@ -33,9 +33,17 @@ const defaultCorsChecker = (origin: string | undefined, callback: any) => {
   return callback(new Error('Not allowed by CORS'));
 };
 
+const originChecker = (origin: string | undefined, callback: any) => {
+  if (!origin) return callback(null, true);
+  // If explicit list contains the origin, allow
+  if (corsOrigins.length && corsOrigins.includes(origin)) return callback(null, true);
+  // Fallback default rules (localhost and *.vercel.app)
+  return defaultCorsChecker(origin, callback);
+};
+
 app.use(
   cors({
-    origin: corsOrigins.length > 0 ? corsOrigins : defaultCorsChecker,
+    origin: originChecker,
   }),
 );
 app.use(morgan('dev'));
