@@ -11,14 +11,11 @@ on:
 env:
   # Optional defaults; secrets must be supplied in repo or environment
   RENDER_API_TOKEN: ${{ secrets.RENDER_API_TOKEN }}
-  CORS_ORIGINS: ${{ secrets.CORS_ORIGINS }}
-  PRODUCTION_URL: ${{ secrets.PRODUCTION_URL }}
 
 jobs:
   deploy:
     name: Render Blueprint Deploy
     runs-on: ubuntu-latest
-  environment: render_api_token
     concurrency:
       group: render-blueprint-${{ github.ref }}
       cancel-in-progress: true
@@ -45,10 +42,8 @@ jobs:
       - name: Smoke check
         if: always()
         run: |
-          searchUrl="${{ secrets.RENDER_URL_SEARCHAPI }}"
-          excelUrl="${{ secrets.RENDER_URL_EXCELPARSER }}"
-          [ -z "$searchUrl" ] && searchUrl="https://contta-searchapi-staging.onrender.com/health"
-          [ -z "$excelUrl" ] && excelUrl="https://contta-excelparser-staging.onrender.com/health"
+          searchUrl="https://contta-searchapi-staging.onrender.com/health"
+          excelUrl="https://contta-excelparser-staging.onrender.com/health"
           echo "Search API: $searchUrl"
           echo "Excel Parser: $excelUrl"
           curl -fsS "$searchUrl" -m 20 || true
