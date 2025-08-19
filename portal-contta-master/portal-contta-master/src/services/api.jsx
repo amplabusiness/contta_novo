@@ -1,6 +1,18 @@
 import { create } from 'apisauce';
 
-const baseURL = process.env.REACT_APP_API_BASE_URL || 'http://api.contta.com.br/api';
+function detectBaseURL() {
+  const envBase = process.env.REACT_APP_API_BASE_URL;
+  if (envBase) return envBase;
+  if (typeof window !== 'undefined') {
+    const host = window.location.host.toLowerCase();
+    if (host.includes('vercel.app')) {
+      return 'https://contta-searchapi-staging.onrender.com/api';
+    }
+  }
+  return 'http://api.contta.com.br/api';
+}
+
+const baseURL = detectBaseURL();
 
 const api = create({
   baseURL,
