@@ -26,25 +26,15 @@ BLUEPRINT_PAYLOAD='{
   "blueprintPath": "'$BLUEPRINT_PATH'",
   "serviceDetails": [
     {
-      "name": "contta-keycloak-staging",
-      "env": "docker",
-      "plan": "starter",
-      "envVars": {
-        "KEYCLOAK_ADMIN": "admin",
-  "KEYCLOAK_ADMIN_PASSWORD": "'${KEYCLOAK_ADMIN_PASSWORD:-}'"
-      }
-    },
-    {
       "name": "contta-searchapi-staging", 
       "env": "docker",
       "plan": "starter",
       "envVars": {
         "NODE_ENV": "production",
         "PORT": "5001",
-  "MONGODB_URI": "'${MONGODB_URI:-}'",
-  "OIDC_ISSUER": "'${OIDC_ISSUER:-https://contta-keycloak-staging.onrender.com/realms/contta}'",
-        "OIDC_AUDIENCE": "contta-portal",
-  "CORS_ORIGINS": "'${CORS_ORIGINS:-http://localhost:3000,https://conttanovo.vercel.app}'"
+        "AUTH_DISABLED": "true",
+        "CORS_ORIGINS": "'${CORS_ORIGINS:-http://localhost:3000,https://conttanovo.vercel.app}'",
+        "MONGODB_URI": "'${MONGODB_URI:-}'"
       }
     },
     {
@@ -54,9 +44,9 @@ BLUEPRINT_PAYLOAD='{
       "envVars": {
         "NODE_ENV": "production",
         "PORT": "5002",
-  "OIDC_ISSUER": "'${OIDC_ISSUER:-https://contta-keycloak-staging.onrender.com/realms/contta}'",
-        "OIDC_AUDIENCE": "contta-portal",
-  "PRODUCTION_URL": "'${PRODUCTION_URL:-https://conttanovo.vercel.app}'"
+        "AUTH_DISABLED": "true",
+        "PRODUCTION_URL": "'${PRODUCTION_URL:-https://conttanovo.vercel.app}'",
+        "MONGODB_URI": "'${MONGODB_URI:-}'"
       }
     },
     {
@@ -64,7 +54,7 @@ BLUEPRINT_PAYLOAD='{
       "env": "docker",
       "plan": "starter",
       "envVars": {
-  "RABBITMQ_URL": "'${RABBITMQ_URL:-}'",
+        "RABBITMQ_URL": "'${RABBITMQ_URL:-}'",
         "RABBITMQ_QUEUE": "Modelo55",
         "RABBITMQ_PREFETCH": "20",
         "RabbitMQ__Durable": "true",
@@ -90,17 +80,15 @@ echo "$DEPLOY_RESPONSE" | jq .
 # 2. Extrair Service IDs
 echo ""
 echo "📋 Extraindo Service IDs..."
-KEYCLOAK_ID=$(echo "$DEPLOY_RESPONSE" | jq -r '.services[] | select(.name=="contta-keycloak-staging") | .id // empty')
 SEARCH_ID=$(echo "$DEPLOY_RESPONSE" | jq -r '.services[] | select(.name=="contta-searchapi-staging") | .id // empty')
 EXCEL_ID=$(echo "$DEPLOY_RESPONSE" | jq -r '.services[] | select(.name=="contta-excelparser-staging") | .id // empty')
 CONSUMER_ID=$(echo "$DEPLOY_RESPONSE" | jq -r '.services[] | select(.name=="contta-consumerxml-staging") | .id // empty')
 
-if [ -z "$KEYCLOAK_ID$SEARCH_ID$EXCEL_ID$CONSUMER_ID" ]; then
+if [ -z "$SEARCH_ID$EXCEL_ID$CONSUMER_ID" ]; then
   echo "⚠️ Não foi possível extrair IDs de serviço. Verifique o token e a resposta da API." >&2
 fi
 
 echo "Service IDs:"
-echo "RENDER_SERVICE_ID_KEYCLOAK=$KEYCLOAK_ID"
 echo "RENDER_SERVICE_ID_SEARCHAPI=$SEARCH_ID"  
 echo "RENDER_SERVICE_ID_EXCELPARSER=$EXCEL_ID"
 echo "RENDER_SERVICE_ID_CONSUMERXML=$CONSUMER_ID"
@@ -138,8 +126,7 @@ monitor_service() {
     return 1
 }
 
-# Monitorar todos os serviços
-monitor_service "$KEYCLOAK_ID" "Keycloak" &
+# Monitorar serviços
 monitor_service "$SEARCH_ID" "Search API" &
 monitor_service "$EXCEL_ID" "Excel Parser" &
 monitor_service "$CONSUMER_ID" "Consumer Worker" &
@@ -150,12 +137,10 @@ wait
 echo ""
 echo "🎯 BLUEPRINT DEPLOY CONCLUÍDO!"
 echo "URLs dos serviços:"
-echo "- Keycloak: https://contta-keycloak-staging.onrender.com"
 echo "- Search API: https://contta-searchapi-staging.onrender.com"
 echo "- Excel Parser: https://contta-excelparser-staging.onrender.com"
 echo ""
 echo "📋 Service IDs para GitHub Secrets:"
-echo "RENDER_SERVICE_ID_KEYCLOAK=$KEYCLOAK_ID"
 echo "RENDER_SERVICE_ID_SEARCHAPI=$SEARCH_ID"
 echo "RENDER_SERVICE_ID_EXCELPARSER=$EXCEL_ID" 
 echo "RENDER_SERVICE_ID_CONSUMERXML=$CONSUMER_ID"
