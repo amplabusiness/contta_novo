@@ -1,0 +1,112 @@
+name: Render Blueprint Deploy
+
+on:
+  workflow_dispatch:
+    inputs:
+      mongodb_uri:
+        description: "MONGODB_URI (opcional, usa o do Render se vazio)"
+        required: false
+        default: ""
+      rabbitmq_url:
+        description: "RABBITMQ_URL (opcional, usa o do Render se vazio)"
+        required: false
+        default: ""
+      cors_origins:
+        description: "CORS_ORIGINS (ex: *.vercel.app,https://e-contta.com.br)"
+        required: false
+        default: "*.vercel.app,https://localhost:3000"
+      production_url:
+        description: "PRODUCTION_URL do front (ex: https://e-contta.com.br)"
+        required: false
+        default: ""
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build Blueprint Payload
+        id: build
+        shell: bash
+        run: |
+          set -euo pipefail
+          REPO_URL="https://github.com/${{ github.repository }}"
+          BRANCH="${{ github.ref_name }}"
+          BLUEPRINT_PATH="render.yaml"
+
+          MONGO="${{ github.event.inputs.mongodb_uri }}"
+          RABBIT="${{ github.event.inputs.rabbitmq_url }}"
+          CORS="${{ github.event.inputs.cors_origins }}"
+          PRODURL="${{ github.event.inputs.production_url }}"
+
+          sudo apt-get update -y >/dev/null 2>&1 || true
+          sudo apt-get install -y jq >/dev/null 2>&1 || true
+
+          jq -n \
+            --arg repo "$REPO_URL" \
+            --arg branch "$BRANCH" \
+            --arg blueprintPath "$BLUEPRINT_PATH" \
+            --arg mongodb_uri "$MONGO" \
+            --arg rabbitmq_url "$RABBIT" \
+            --arg cors_origins "$CORS" \
+            --arg production_url "$PRODURL" \
+            '
+            {
+              repo: $repo,
+              branch: $branch,
+              blueprintPath: $blueprintPath,
+              serviceDetails: [
+                {
+                  name: "contta-searchapi-staging",
+                  envVars: ({}
+                    + ( ($mongodb_uri|length)>0 | if . then {"MONGODB_URI": $mongodb_uri} else {} end )
+                    + ( ($cors_origins|length)>0 | if . then {"CORS_ORIGINS": $cors_origins} else {} end )
+                  )
+                },
+                {
+                  name: "contta-excelparser-staging",
+                  envVars: ({}
+                    + ( ($production_url|length)>0 | if . then {"PRODUCTION_URL": $production_url} else {} end )
+                    + ( ($mongodb_uri|length)>0 | if . then {"MONGODB_URI": $mongodb_uri} else {} end )
+                  )
+                },
+                {
+                  name: "contta-consumerxml-staging",
+                  envVars: ({}
+                    + ( ($rabbitmq_url|length)>0 | if . then {"RABBITMQ_URL": $rabbitmq_url} else {} end )
+                  )
+                }
+              ]
+            }
+            ' > payload.json
+
+          echo "Payload:" && cat payload.json
+
+      - name: Trigger Render Blueprint
+        env:
+          RENDER_API_TOKEN: ${{ secrets.RENDER_API_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -z "${RENDER_API_TOKEN}" ]; then
+            echo "Segredo RENDER_API_TOKEN ausente. Configure em Settings > Secrets and variables > Actions." >&2
+            exit 1
+          fi
+
+          HTTP_CODE=$(curl -sS -o response.json -w "%{http_code}" \
+            -X POST \
+            -H "Authorization: Bearer ${RENDER_API_TOKEN}" \
+            -H "Content-Type: application/json" \
+            -H "Accept: application/json" \
+            --data-binary @payload.json \
+            https://api.render.com/v1/blueprints)
+
+          echo "Status HTTP: ${HTTP_CODE}"
+          echo "Resposta:" && cat response.json
+
+          if [ "${HTTP_CODE}" != "200" ] && [ "${HTTP_CODE}" != "201" ]; then
+            echo "Falha ao acionar o blueprint (HTTP ${HTTP_CODE})." >&2
+            exit 1
+          fi
