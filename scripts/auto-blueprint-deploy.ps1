@@ -117,18 +117,20 @@ $blueprintPayload = @{
             }
         }
     )
-} | ConvertTo-Json -Depth 10
+}
 
 Write-Host "📋 Executando Blueprint Deploy..." -ForegroundColor Yellow
 
 try {
+    $body = $blueprintPayload | ConvertTo-Json -Depth 10
     $response = Invoke-RestMethod -Uri "https://api.render.com/v1/blueprints" `
         -Method Post `
         -Headers @{
             "Authorization" = "Bearer $RenderApiToken"
             "Content-Type" = "application/json"
+            "Accept" = "application/json"
         } `
-        -Body $blueprintPayload
+        -Body $body
 
     Write-Host "✅ Blueprint Deploy iniciado!" -ForegroundColor Green
     Write-Host ($response | ConvertTo-Json -Depth 5)
@@ -151,7 +153,7 @@ try {
     Write-Host "🔄 Monitorando deploys..." -ForegroundColor Yellow
     
     # Monitor function
-    function Monitor-Service {
+    function Watch-RenderService {
         param($serviceId, $serviceName)
         
         $maxAttempts = 60
@@ -186,16 +188,11 @@ try {
         return $false
     }
 
-    # Monitor all services
-    $jobs = @()
-    $jobs += Start-Job -ScriptBlock { Monitor-Service $args[0] $args[1] } -ArgumentList $keycloakId, "Keycloak"
-    $jobs += Start-Job -ScriptBlock { Monitor-Service $args[0] $args[1] } -ArgumentList $searchId, "Search API"
-    $jobs += Start-Job -ScriptBlock { Monitor-Service $args[0] $args[1] } -ArgumentList $excelId, "Excel Parser"
-    $jobs += Start-Job -ScriptBlock { Monitor-Service $args[0] $args[1] } -ArgumentList $consumerId, "Consumer"
-
-    # Wait for all jobs
-    $jobs | Wait-Job | Receive-Job
-    $jobs | Remove-Job
+    # Monitor services sequencialmente para simplificar escopo/saída
+    Watch-RenderService -serviceId $keycloakId -serviceName "Keycloak" | Out-Null
+    Watch-RenderService -serviceId $searchId -serviceName "Search API" | Out-Null
+    Watch-RenderService -serviceId $excelId -serviceName "Excel Parser" | Out-Null
+    Watch-RenderService -serviceId $consumerId -serviceName "Consumer" | Out-Null
 
     Write-Host ""
     Write-Host "🎯 BLUEPRINT DEPLOY CONCLUÍDO!" -ForegroundColor Green
