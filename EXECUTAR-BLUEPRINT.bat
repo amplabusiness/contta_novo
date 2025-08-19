@@ -16,7 +16,7 @@ REM Permite usar variável de ambiente já definida
 if not "!RENDER_API_TOKEN!"=="" (
     set "token=!RENDER_API_TOKEN!"
 ) else (
-    set /p token="Cole seu RENDER_API_TOKEN (rnd_...): "
+    set /p token="Cole seu RENDER_API_TOKEN (rnd_xK09wNZxoorEcseTDW3UtissBCby): "
 )
 
 if "%token%"=="" (
