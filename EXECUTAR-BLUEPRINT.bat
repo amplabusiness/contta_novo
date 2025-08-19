@@ -24,8 +24,8 @@ if not "!MONGODB_URI!"=="" (
     set "mongo_uri=!MONGODB_URI!"
 ) else (
     echo.
-    echo Exemplo: mongodb+srv://user:pass@cluster.mongodb.net/contta
-    set /p mongo_uri="Cole sua MONGODB_URI: "
+    echo Exemplo: mongodb+srv://sergio:ZvP7aCCNPndstbZU@cluster0.uczjtjv.mongodb.net/
+    set /p mongo_uri="mongodb+srv://sergio:ZvP7aCCNPndstbZU@cluster0.uczjtjv.mongodb.net/"
 )
 if "!mongo_uri!"=="" (
     echo ❌ MONGODB_URI não fornecida.

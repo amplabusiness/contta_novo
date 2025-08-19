@@ -4,6 +4,7 @@ import morgan from 'morgan';
 import path from 'path';
 
 import '@/config/env';
+import { isDbConnected } from '@/config/database';
 
 import { parserRouter } from '@/routes/parser.routes';
 import { authMiddleware } from './middlewares/auth';
@@ -51,7 +52,8 @@ const distPath = path.join(__dirname, '..', 'dist');
 // --- HEALTH --- //
 
 app.get('/health', (_req, res) => {
-  res.status(200).json({ status: 'ok' });
+  const db = isDbConnected() ? 'connected' : 'disconnected';
+  res.status(200).json({ status: 'ok', db });
 });
 
 if (process.env.NODE_ENV === 'production') {

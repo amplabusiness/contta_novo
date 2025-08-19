@@ -13,7 +13,8 @@
         {
             "name": "contta-excelparser-staging",
             "envVars": {
-                "PRODUCTION_URL": "__PRODUCTION_URL__"
+                "PRODUCTION_URL": "__PRODUCTION_URL__",
+                "MONGODB_URI": "__MONGODB_URI__"
             }
         },
         {

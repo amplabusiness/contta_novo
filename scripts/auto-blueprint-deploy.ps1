@@ -26,6 +26,47 @@ $OidcIssuer = "$KeycloakPublicUrl/realms/contta"
 $templatePath = Join-Path $PSScriptRoot "blueprint-payload.template.json"
 $payloadJson = Get-Content -Path $templatePath -Raw
 
+function Normalize-MongoUri {
+    param([string]$uri)
+    if ([string]::IsNullOrWhiteSpace($uri)) { return $uri }
+    # Se não houver path de DB (termina em "/" ou diretamente após host), adiciona "/contta"
+    # Casos:
+    # 1) ...mongodb.net/            -> ...mongodb.net/contta
+    # 2) ...mongodb.net/?...        -> ...mongodb.net/contta?...
+    # 3) ...mongodb.net/dbname?...  -> mantém
+    $hasPath = $false
+    try {
+        $u = [System.Uri]$uri
+        # Para mongodb+srv, Uri não parseia path corretamente se não for absoluto HTTP, então fallback regex
+    } catch {}
+
+    if ($uri -match '^[^?]*\/([^\/?]+)\?') { $hasPath = $true }
+    elseif ($uri -match '^[^?]*\/([^\/?]+)$') { $hasPath = ($Matches[1] -ne '') }
+    elseif ($uri -match '^[^?]*\/$') { $hasPath = $false }
+    else {
+        # Se não há barra após host
+        if ($uri -notmatch '\/[^\/]+$' -and $uri -notmatch '\/[^\/?]+\?') { $hasPath = $false }
+    }
+
+    if (-not $hasPath) {
+        if ($uri -match '\?$') {
+            return $uri -replace '\?$', '/contta?retryWrites=true&w=majority'
+        } elseif ($uri -match '\/\?$') {
+            return $uri -replace '/\?$', '/contta?retryWrites=true&w=majority'
+        } elseif ($uri -match '\/$') {
+            return "$uri" + 'contta?retryWrites=true&w=majority'
+        } elseif ($uri -match '\?') {
+            # Tem query mas sem path definido: inserir /contta antes da query
+            return $uri -replace '\?', '/contta?'
+        } else {
+            return "$uri" + '/contta?retryWrites=true&w=majority'
+        }
+    }
+    return $uri
+}
+
+$MongoUriNorm = Normalize-MongoUri -uri $MongoUri
+
 function Convert-ToJsonStringLiteral {
     param([string]$s)
     if ($null -eq $s) { return '' }
@@ -40,7 +81,7 @@ function Convert-ToJsonStringLiteral {
 
 $KeycloakAdminPasswordEsc = Convert-ToJsonStringLiteral -s $KeycloakAdminPassword
 $KeycloakPublicUrlEsc     = Convert-ToJsonStringLiteral -s $KeycloakPublicUrl
-$MongoUriEsc              = Convert-ToJsonStringLiteral -s $MongoUri
+$MongoUriEsc              = Convert-ToJsonStringLiteral -s $MongoUriNorm
 $OidcIssuerEsc            = Convert-ToJsonStringLiteral -s $OidcIssuer
 $CorsOriginsEsc           = Convert-ToJsonStringLiteral -s $CorsOrigins
 $ProductionUrlEsc         = Convert-ToJsonStringLiteral -s $ProductionUrl
