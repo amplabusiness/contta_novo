@@ -6,21 +6,19 @@
         {
             "name": "contta-searchapi-staging",
             "envVars": {
-                "MONGODB_URI": "__MONGODB_URI__",
                 "CORS_ORIGINS": "__CORS_ORIGINS__"
             }
         },
         {
             "name": "contta-excelparser-staging",
             "envVars": {
-                "PRODUCTION_URL": "__PRODUCTION_URL__",
-                "MONGODB_URI": "__MONGODB_URI__"
+                "PRODUCTION_URL": "__PRODUCTION_URL__"
             }
         },
         {
             "name": "contta-consumerxml-staging",
             "envVars": {
-                "RABBITMQ_URL": "__RABBITMQ_URL__"
+                "RABBITMQ_URL": "amqps://mivbuaog:1T2U0XB9sk6NmuUBoNAB2HMzVGBFXKbx@horse.lmq.cloudamqp.com/mivbuaog"
             }
         }
     ]

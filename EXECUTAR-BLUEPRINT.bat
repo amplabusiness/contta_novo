@@ -71,11 +71,45 @@ for %%A in ("%payload_file%") do if %%~zA lss 10 (
     goto end
 )
 
+@echo off
+setlocal EnableExtensions EnableDelayedExpansion
+pushd "%~dp0"
+
+echo Deploy Render Blueprint
+echo =======================
 echo.
+
+:GetToken
+if not "%RENDER_API_TOKEN%"=="" (
+    set "token=%RENDER_API_TOKEN%"
+) else (
+    set /p token="Cole seu RENDER_API_TOKEN: "
+)
+if "%token%"=="" (
+    echo Token ausente.
+    goto GetToken
+)
+
+set "payload_file=%TEMP%\render-blueprint-payload.json"
+set "response_file=%TEMP%\render-blueprint-response.json"
+del /f /q "%payload_file%" >nul 2>&1
+del /f /q "%response_file%" >nul 2>&1
+
+rem Gerar payload (Mongo e Rabbit serão obtidos do Render: env group e template)
+powershell -NoProfile -ExecutionPolicy Bypass -File "scripts\auto-blueprint-deploy.ps1" -CorsOrigins "%CORS_ORIGINS%" -ProductionUrl "%PRODUCTION_URL%" > "%payload_file%"
+
+if not exist "%payload_file%" (
+    echo Falha ao gerar payload JSON.
+    goto end
+)
+for %%A in ("%payload_file%") do if %%~zA lss 10 (
+    echo Payload JSON vazio.
+    goto end
+)
+
 echo Enviando blueprint para Render...
-echo.
 for /f "tokens=2 delims==" %%S in ('curl.exe -sS -X POST ^
-    -H "Authorization: Bearer !token!" ^
+    -H "Authorization: Bearer %token%" ^
     -H "Content-Type: application/json" ^
     -H "Accept: application/json" ^
     --data-binary @"%payload_file%" ^
@@ -84,42 +118,7 @@ for /f "tokens=2 delims==" %%S in ('curl.exe -sS -X POST ^
     -w "HTTP_STATUS=%%{http_code}"') do set "http_status=%%S"
 
 echo Status HTTP: %http_status%
-echo Resposta:
 type "%response_file%"
-
-if not "%http_status%"=="200" if not "%http_status%"=="201" (
-        echo.
-        echo ❌ Falha ao acionar o deploy via Render API (HTTP %http_status%).
-        goto cleanup
-)
-
-echo.
-echo ✅ Requisicao enviada com sucesso.
-
-rem Usa curl.exe para fazer a chamada da API com arquivo (@), evitando truncamento e problemas de escape
-curl.exe -sS --fail-with-body -X POST ^
-  -H "Authorization: Bearer !token!" ^
-  -H "Content-Type: application/json" ^
-  -H "Accept: application/json" ^
-  --data-binary @"%payload_file%" ^
-  "https://api.render.com/v1/blueprints"
-
-set "curl_errorlevel=%ERRORLEVEL%"
-
-echo.
-if not "%curl_errorlevel%"=="0" (
-    echo ❌ Falha ao acionar o deploy via Render API. Codigo de erro: %curl_errorlevel%
-    echo Veja a saida acima para detalhes.
-    goto cleanup
-)
-
-echo ✅ Requisicao enviada com sucesso.
-
-echo.
-echo.
-echo 🎯 Deploy iniciado. O status pode ser acompanhado no dashboard do Render:
-echo https://dashboard.render.com
-echo.
 
 :cleanup
 del /f /q "%payload_file%" >nul 2>&1
@@ -127,4 +126,5 @@ del /f /q "%response_file%" >nul 2>&1
 
 :end
 popd
+pause
 pause
