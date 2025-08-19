@@ -1,7 +1,9 @@
 import { create } from 'apisauce';
 
+const baseURL = process.env.REACT_APP_API_BASE_URL || 'http://api.contta.com.br/api';
+
 const api = create({
-  baseURL: 'http://api.contta.com.br/api',
+  baseURL,
 });
 
 api.addRequestTransform((request) => {
