@@ -1,3 +1,49 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+echo "[auto-blueprint-deploy] Starting blueprint deploy"
+
+if [[ -z "${RENDER_API_TOKEN:-}" ]]; then
+  echo "RENDER_API_TOKEN is not set (configure it as a GitHub Environment secret: render_api_token)" >&2
+  exit 1
+fi
+
+API="https://api.render.com/v1/blueprints"
+PAYLOAD=$(cat <<'JSON'
+{
+  "repo": "https://github.com/amplabusiness/contta_novo",
+  "branch": "main",
+  "rootDir": ".",
+  "blueprintPath": "render.yaml",
+  "clearCache": false
+}
+JSON
+)
+
+echo "[auto-blueprint-deploy] POST $API"
+http_code=$(
+  curl -sS -w "%{http_code}" -o response.json \
+    -H "Authorization: Bearer ${RENDER_API_TOKEN}" \
+    -H "Content-Type: application/json" \
+    -X POST "$API" \
+    -d "$PAYLOAD"
+)
+
+echo "[auto-blueprint-deploy] HTTP $http_code"
+if [[ "$http_code" != "200" && "$http_code" != "201" ]]; then
+  echo "[auto-blueprint-deploy] Error response:" >&2
+  cat response.json >&2 || true
+  exit 1
+fi
+
+echo "[auto-blueprint-deploy] Response:"
+if command -v jq >/dev/null 2>&1; then
+  jq -r '.' response.json || cat response.json
+else
+  cat response.json
+fi
+
+echo "[auto-blueprint-deploy] Done. Services are being updated on Render."
 #!/bin/bash
 # Blueprint Deploy Automation via Render API
 
