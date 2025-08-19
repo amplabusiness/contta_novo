@@ -35,10 +35,6 @@ function Normalize-MongoUri {
     # 2) ...mongodb.net/?...        -> ...mongodb.net/contta?...
     # 3) ...mongodb.net/dbname?...  -> mantém
     $hasPath = $false
-    try {
-        $u = [System.Uri]$uri
-        # Para mongodb+srv, Uri não parseia path corretamente se não for absoluto HTTP, então fallback regex
-    } catch {}
 
     if ($uri -match '^[^?]*\/([^\/?]+)\?') { $hasPath = $true }
     elseif ($uri -match '^[^?]*\/([^\/?]+)$') { $hasPath = ($Matches[1] -ne '') }
