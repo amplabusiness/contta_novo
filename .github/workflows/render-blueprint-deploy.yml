@@ -18,7 +18,7 @@ jobs:
   deploy:
     name: Render Blueprint Deploy
     runs-on: ubuntu-latest
-    environment: production
+  environment: render_api_token
     concurrency:
       group: render-blueprint-${{ github.ref }}
       cancel-in-progress: true
