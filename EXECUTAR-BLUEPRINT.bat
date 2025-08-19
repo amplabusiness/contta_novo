@@ -22,6 +22,7 @@ if "!token!"=="" (
 :GetMongoUri
 if not "!MONGODB_URI!"=="" (
     set "mongo_uri=!MONGODB_URI!"
+    echo Detectado MONGODB_URI no ambiente. Usando esse valor (nao sera solicitado).
 ) else (
     echo.
     echo Exemplo: mongodb+srv://sergio:ZvP7aCCNPndstbZU@cluster0.uczjtjv.mongodb.net/
@@ -38,7 +39,9 @@ echo.
 
 rem O script PowerShell agora apenas prepara o payload JSON em arquivo temporário
 set "payload_file=%TEMP%\render-blueprint-payload.json"
+set "response_file=%TEMP%\render-blueprint-response.json"
 del /f /q "%payload_file%" >nul 2>&1
+del /f /q "%response_file%" >nul 2>&1
 
 powershell -NoProfile -ExecutionPolicy Bypass -File "scripts\auto-blueprint-deploy.ps1" -MongoUri "!mongo_uri!" > "%payload_file%"
 
@@ -54,6 +57,28 @@ for %%A in ("%payload_file%") do if %%~zA lss 10 (
 
 echo.
 echo Enviando blueprint para Render...
+echo.
+for /f "tokens=2 delims==" %%S in ('curl.exe -sS -X POST ^
+    -H "Authorization: Bearer !token!" ^
+    -H "Content-Type: application/json" ^
+    -H "Accept: application/json" ^
+    --data-binary @"%payload_file%" ^
+    "https://api.render.com/v1/blueprints" ^
+    -o "%response_file%" ^
+    -w "HTTP_STATUS=%%{http_code}"') do set "http_status=%%S"
+
+echo Status HTTP: %http_status%
+echo Resposta:
+type "%response_file%"
+
+if not "%http_status%"=="200" if not "%http_status%"=="201" (
+        echo.
+        echo ❌ Falha ao acionar o deploy via Render API (HTTP %http_status%).
+        goto cleanup
+)
+
+echo.
+echo ✅ Requisicao enviada com sucesso.
 
 rem Usa curl.exe para fazer a chamada da API com arquivo (@), evitando truncamento e problemas de escape
 curl.exe -sS --fail-with-body -X POST ^
@@ -82,6 +107,7 @@ echo.
 
 :cleanup
 del /f /q "%payload_file%" >nul 2>&1
+del /f /q "%response_file%" >nul 2>&1
 
 :end
 popd
