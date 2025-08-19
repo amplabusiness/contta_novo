@@ -15,41 +15,6 @@ envVarGroups:
       - key: KEYCLOAK_PUBLIC_URL
         sync: false
 services:
-  - type: web
-    name: contta-keycloak-staging
-    runtime: docker
-    plan: starter
-    region: oregon
-    autoDeploy: true
-    rootDir: .docker/keycloak
-    dockerfilePath: Dockerfile
-    envVars:
-      - key: KEYCLOAK_ADMIN
-        value: admin
-      - key: KEYCLOAK_ADMIN_PASSWORD
-        sync: false
-      - key: PORT
-        value: 8080
-      - key: KC_CACHE
-        value: local
-      # Keycloak behind Render proxy: disable strict hostname or set proxy headers
-      - key: KC_HOSTNAME_STRICT
-        value: "false"
-      - key: KC_HOSTNAME
-        sync: false
-      - key: KC_PROXY
-        value: edge
-      - key: KC_PROXY_HEADERS
-        value: xforwarded
-      - key: KC_HOSTNAME_URL
-        sync: false
-      - key: KC_HOSTNAME_ADMIN_URL
-        sync: false
-      - key: KC_HTTP_ENABLED
-        value: "true"
-      - key: KC_HTTP_PORT
-        value: 8080
-  healthCheckPath: /realms/master/.well-known/openid-configuration
 
   - type: web
     name: contta-searchapi-staging
@@ -62,6 +27,8 @@ services:
   # envVarGroups removido (não suportado por serviço)
     envVars:
       - fromGroup: contta-production
+      - key: AUTH_DISABLED
+        value: "true"
       - key: NODE_ENV
         value: production
       - key: PORT
@@ -81,6 +48,8 @@ services:
   # envVarGroups removido (não suportado por serviço)
     envVars:
       - fromGroup: contta-production
+      - key: AUTH_DISABLED
+        value: "true"
       - key: NODE_ENV
         value: production
       - key: PORT

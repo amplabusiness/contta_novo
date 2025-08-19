@@ -32,48 +32,56 @@ if "!mongo_uri!"=="" (
     goto GetMongoUri
 )
 
-:GetKeycloakPassword
-if not "!KEYCLOAK_ADMIN_PASSWORD!"=="" (
-    set "keycloak_password=!KEYCLOAK_ADMIN_PASSWORD!"
-) else (
-    echo.
-    set /p keycloak_password="Defina a KEYCLOAK_ADMIN_PASSWORD: "
-)
-if "!keycloak_password!"=="" (
-    echo ❌ Senha do Keycloak não fornecida.
-    goto GetKeycloakPassword
-)
-
 echo.
-echo ⚡ Preparando e iniciando o deploy no Render...
+echo ⚡ Preparando e iniciando o deploy no Render (sem Keycloak)...
 echo.
 
-rem O script PowerShell agora apenas prepara o payload JSON
-set "ps_command=powershell -NoProfile -ExecutionPolicy Bypass -File ""scripts\auto-blueprint-deploy.ps1"" -KeycloakAdminPassword ""!keycloak_password!"" -MongoUri ""!mongo_uri!"""
+rem O script PowerShell agora apenas prepara o payload JSON em arquivo temporário
+set "payload_file=%TEMP%\render-blueprint-payload.json"
+del /f /q "%payload_file%" >nul 2>&1
 
-rem Executa o PowerShell e captura a saída (o payload JSON)
-for /f "delims=" %%i in ('!ps_command!') do (
-    set "payload=%%i"
-)
+powershell -NoProfile -ExecutionPolicy Bypass -File "scripts\auto-blueprint-deploy.ps1" -MongoUri "!mongo_uri!" > "%payload_file%"
 
-if not defined payload (
+if not exist "%payload_file%" (
     echo ❌ Falha ao gerar o payload JSON. Verifique o script PowerShell.
     goto end
 )
 
-rem Usa curl para fazer a chamada da API - mais robusto que Invoke-RestMethod
-curl -X POST ^
+for %%A in ("%payload_file%") do if %%~zA lss 10 (
+    echo ❌ Payload JSON ficou vazio. Verifique o script PowerShell.
+    goto end
+)
+
+echo.
+echo Enviando blueprint para Render...
+
+rem Usa curl.exe para fazer a chamada da API com arquivo (@), evitando truncamento e problemas de escape
+curl.exe -sS --fail-with-body -X POST ^
   -H "Authorization: Bearer !token!" ^
   -H "Content-Type: application/json" ^
   -H "Accept: application/json" ^
-  -d "!payload!" ^
+  --data-binary @"%payload_file%" ^
   "https://api.render.com/v1/blueprints"
+
+set "curl_errorlevel=%ERRORLEVEL%"
+
+echo.
+if not "%curl_errorlevel%"=="0" (
+    echo ❌ Falha ao acionar o deploy via Render API. Codigo de erro: %curl_errorlevel%
+    echo Veja a saida acima para detalhes.
+    goto cleanup
+)
+
+echo ✅ Requisicao enviada com sucesso.
 
 echo.
 echo.
 echo 🎯 Deploy iniciado. O status pode ser acompanhado no dashboard do Render:
 echo https://dashboard.render.com
 echo.
+
+:cleanup
+del /f /q "%payload_file%" >nul 2>&1
 
 :end
 popd
