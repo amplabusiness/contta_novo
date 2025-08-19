@@ -37,13 +37,55 @@ echo.
 echo ⚡ Preparando e iniciando o deploy no Render (sem Keycloak)...
 echo.
 
-rem O script PowerShell agora apenas prepara o payload JSON em arquivo temporário
+rem Preparar arquivos temporários
 set "payload_file=%TEMP%\render-blueprint-payload.json"
 set "response_file=%TEMP%\render-blueprint-response.json"
+set "temp_ps1=%TEMP%\gen-payload-%RANDOM%.ps1"
 del /f /q "%payload_file%" >nul 2>&1
 del /f /q "%response_file%" >nul 2>&1
+del /f /q "%temp_ps1%" >nul 2>&1
 
-powershell -NoProfile -ExecutionPolicy Bypass -File "scripts\auto-blueprint-deploy.ps1" -MongoUri "!mongo_uri!" > "%payload_file%"
+rem Variáveis opcionais vindas do ambiente
+set "cors_env=!CORS_ORIGINS!"
+set "prod_env=!PRODUCTION_URL!"
+set "rabbit_env=!RABBITMQ_URL!"
+
+rem Gerar script PowerShell temporário para criar o payload
+(
+    echo param(^[string^]$MongoUri,^[string^]$CorsOrigins,^[string^]$ProductionUrl,^[string^]$RabbitUrl)
+    echo $ErrorActionPreference = 'Stop'
+    echo $templatePath = Join-Path (Get-Location) 'scripts/blueprint-payload.template.json'
+    echo if(-not (Test-Path $templatePath)) { Write-Error "Template nao encontrado: $templatePath"; exit 1 }
+    echo $payloadJson = Get-Content -Path $templatePath -Raw -Encoding UTF8
+    echo function Normalize-MongoUri { param(^[string^]$uri)
+    echo   if([string]::IsNullOrWhiteSpace($uri)) { return $uri }
+    echo   $hasPath = $false
+    echo   if($uri -match '^[^?]*/([^/?]+)\?') { $hasPath = $true }
+    echo   elseif($uri -match '^[^?]*/([^/?]+)$') { $hasPath = ($Matches[1] -ne '') }
+    echo   elseif($uri -match '^[^?]*/$') { $hasPath = $false }
+    echo   else { if($uri -notmatch '/[^/]+$' -and $uri -notmatch '/[^/?]+\?') { $hasPath = $false } }
+    echo   if(-not $hasPath) {
+    echo     if($uri -match '\?$') { return ($uri -replace '\?$', '/contta?retryWrites=true^&w=majority') }
+    echo     elseif($uri -match '/\?$') { return ($uri -replace '/\?$', '/contta?retryWrites=true^&w=majority') }
+    echo     elseif($uri -match '/$') { return ($uri + 'contta?retryWrites=true^&w=majority') }
+    echo     elseif($uri -match '\?') { return ($uri -replace '\?', '/contta?') }
+    echo     else { return ($uri + '/contta?retryWrites=true^&w=majority') }
+    echo   }
+    echo   return $uri
+    echo }
+    echo function Esc(^[string^]$s) { if($null -eq $s) { return '' } ^&^& ($s ^| ConvertTo-Json -Compress) ^|
+    echo   ForEach-Object { if($_.StartsWith('"') -and $_.EndsWith('"')) { $_.Substring(1, $_.Length-2) } else { $_ } } }
+    echo $mongoNorm = Normalize-MongoUri $MongoUri
+    echo if([string]::IsNullOrWhiteSpace($CorsOrigins)) { $CorsOrigins = '*.vercel.app,https://localhost:3000' }
+    echo if([string]::IsNullOrWhiteSpace($ProductionUrl)) { $ProductionUrl = '' }
+    echo if([string]::IsNullOrWhiteSpace($RabbitUrl)) { $RabbitUrl = '' }
+    echo $payloadJson = $payloadJson.Replace('__MONGODB_URI__', (Esc $mongoNorm)).Replace('__CORS_ORIGINS__', (Esc $CorsOrigins)).Replace('__PRODUCTION_URL__', (Esc $ProductionUrl)).Replace('__RABBITMQ_URL__', (Esc $RabbitUrl))
+    echo [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
+    echo Write-Output $payloadJson
+) > "%temp_ps1%"
+
+rem Executar o script temporário para gerar o payload
+powershell -NoProfile -ExecutionPolicy Bypass -File "%temp_ps1%" -MongoUri "!mongo_uri!" -CorsOrigins "!cors_env!" -ProductionUrl "!prod_env!" -RabbitUrl "!rabbit_env!" > "%payload_file%"
 
 if not exist "%payload_file%" (
     echo ❌ Falha ao gerar o payload JSON. Verifique o script PowerShell.
@@ -108,6 +150,7 @@ echo.
 :cleanup
 del /f /q "%payload_file%" >nul 2>&1
 del /f /q "%response_file%" >nul 2>&1
+del /f /q "%temp_ps1%" >nul 2>&1
 
 :end
 popd
