@@ -2,15 +2,12 @@ name: Deploy Render Blueprint
 
 on:
   push:
-    branches: [ main ]
+    branches:
+      - main
     paths:
-      - 'render.yaml'
-      - 'scripts/auto-blueprint-deploy.*'
-  workflow_dispatch: {}
-
-env:
-  # Optional defaults; secrets must be supplied in repo or environment
-  RENDER_API_TOKEN: ${{ secrets.RENDER_API_TOKEN }}
+      - render.yaml
+      - scripts/auto-blueprint-deploy.*
+  workflow_dispatch:
 
 jobs:
   deploy:
@@ -20,10 +17,13 @@ jobs:
       group: render-blueprint-${{ github.ref }}
       cancel-in-progress: true
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        name: Checkout
 
       - name: Preflight - check secrets
+        env:
+          RENDER_API_TOKEN: ${{ secrets.RENDER_API_TOKEN }}
+        shell: bash
         run: |
           missing=""
           for k in RENDER_API_TOKEN; do
@@ -38,9 +38,13 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y jq curl
 
       - name: Run Blueprint Deploy
+        env:
+          RENDER_API_TOKEN: ${{ secrets.RENDER_API_TOKEN }}
         run: bash scripts/auto-blueprint-deploy.sh
+
       - name: Smoke check
         if: always()
+        shell: bash
         run: |
           searchUrl="https://contta-searchapi-staging.onrender.com/health"
           excelUrl="https://contta-excelparser-staging.onrender.com/health"
