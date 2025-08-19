@@ -6,13 +6,13 @@
         {
             "name": "contta-searchapi-staging",
             "envVars": {
-                "CORS_ORIGINS": "__CORS_ORIGINS__"
+                "CORS_ORIGINS": "*.vercel.app,https://localhost:3000"
             }
         },
         {
             "name": "contta-excelparser-staging",
             "envVars": {
-                "PRODUCTION_URL": "__PRODUCTION_URL__"
+                "PRODUCTION_URL": ""
             }
         },
         {
