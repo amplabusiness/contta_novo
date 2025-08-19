@@ -33,6 +33,21 @@ if "!mongo_uri!"=="" (
     goto GetMongoUri
 )
 
+rem Solicitar RABBITMQ_URL (CloudAMQP) se não vier do ambiente
+:GetRabbitUrl
+if not "!RABBITMQ_URL!"=="" (
+    set "rabbit_url=!RABBITMQ_URL!"
+    echo Detectado RABBITMQ_URL no ambiente. Usando esse valor (nao sera solicitado).
+) else (
+    echo.
+    echo Exemplo CloudAMQP: amqps://usuario:senha@host.rmq.cloudamqp.com/vhost
+    set /p rabbit_url="Cole seu RABBITMQ_URL (CloudAMQP): "
+)
+if "!rabbit_url!"=="" (
+    echo ❌ RABBITMQ_URL nao fornecida.
+    goto GetRabbitUrl
+)
+
 echo.
 echo ⚡ Preparando e iniciando o deploy no Render (sem Keycloak)...
 echo.
@@ -44,7 +59,7 @@ del /f /q "%payload_file%" >nul 2>&1
 del /f /q "%response_file%" >nul 2>&1
 
 rem Gerar o payload usando o script PowerShell do repositório (versão simplificada)
-powershell -NoProfile -ExecutionPolicy Bypass -File "scripts\auto-blueprint-deploy.ps1" -MongoUri "!mongo_uri!" -CorsOrigins "!CORS_ORIGINS!" -ProductionUrl "!PRODUCTION_URL!" -RabbitUrl "!RABBITMQ_URL!" > "%payload_file%"
+powershell -NoProfile -ExecutionPolicy Bypass -File "scripts\auto-blueprint-deploy.ps1" -MongoUri "!mongo_uri!" -CorsOrigins "!CORS_ORIGINS!" -ProductionUrl "!PRODUCTION_URL!" -RabbitUrl "!rabbit_url!" > "%payload_file%"
 
 if not exist "%payload_file%" (
     echo ❌ Falha ao gerar o payload JSON. Verifique o script PowerShell.
