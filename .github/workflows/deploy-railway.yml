@@ -1,19 +1,2 @@
-# MIGRADO PARA RENDER - Railway workflow desabilitado
-# Use deploy-render.yml para automação completa
-name: "[DISABLED] Deploy Backends to Railway - CONTA DELETADA"
 
-on:
-  # RAILWAY ACCOUNT DELETED - WORKFLOW PERMANENTLY DISABLED
-  # Use deploy-render.yml for all deployments
-  # workflow_dispatch:
-  #   inputs:
-  #     force_deploy:
-  #       description: 'Railway account deleted - use Render instead'
-  #       required: true
-  #       default: 'disabled'
-
-jobs:
-  deploy:
-    runs-on: ubuntu-latest
-    steps:
 

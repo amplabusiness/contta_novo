@@ -28,7 +28,7 @@ services:
     envVars:
       - fromGroup: contta-production
       - key: CORS_ORIGINS
-        value: https://conttanovo-git-main-sergio-carneiro-leaos-projects.vercel.app,https://conttanovo-6yias0ak0-sergio-carneiro-leaos-projects.vercel.app
+        value: https://conttanovo-git-main-sergio-carneiro-leaos-projects.vercel.app,https://conttanovo-6yias0ak0-sergio-carneiro-leaos-projects.vercel.app,https://contanovo.vercel.app,https://e-contta.com.br
       - key: AUTH_DISABLED
         value: "true"
       - key: NODE_ENV
@@ -51,7 +51,7 @@ services:
     envVars:
       - fromGroup: contta-production
       - key: CORS_ORIGINS
-        value: https://conttanovo-git-main-sergio-carneiro-leaos-projects.vercel.app,https://conttanovo-6yias0ak0-sergio-carneiro-leaos-projects.vercel.app
+        value: https://conttanovo-git-main-sergio-carneiro-leaos-projects.vercel.app,https://conttanovo-6yias0ak0-sergio-carneiro-leaos-projects.vercel.app,https://contanovo.vercel.app,https://e-contta.com.br
       - key: AUTH_DISABLED
         value: "true"
       - key: NODE_ENV
