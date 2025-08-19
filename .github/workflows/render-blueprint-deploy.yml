@@ -13,24 +13,24 @@ jobs:
   deploy:
     name: Render Blueprint Deploy
     runs-on: ubuntu-latest
+    environment: render_api_token
     concurrency:
       group: render-blueprint-${{ github.ref }}
       cancel-in-progress: true
     steps:
-      - uses: actions/checkout@v4
-        name: Checkout
+      - name: Checkout
+        uses: actions/checkout@v4
 
       - name: Preflight - check secrets
         env:
           RENDER_API_TOKEN: ${{ secrets.RENDER_API_TOKEN }}
-        shell: bash
         run: |
           missing=""
           for k in RENDER_API_TOKEN; do
             if [ -z "${!k}" ]; then missing="$missing $k"; fi
           done
           if [ -n "$missing" ]; then
-            echo "Missing required secrets:$missing" >&2
+            echo "Missing required secrets:$missing (ensure they are set on Environment: render_api_token)" >&2
             exit 1
           fi
 
@@ -44,7 +44,6 @@ jobs:
 
       - name: Smoke check
         if: always()
-        shell: bash
         run: |
           searchUrl="https://contta-searchapi-staging.onrender.com/health"
           excelUrl="https://contta-excelparser-staging.onrender.com/health"
