@@ -28,6 +28,8 @@ services:
         value: admin
       - key: KEYCLOAK_ADMIN_PASSWORD
         sync: false
+      - key: PORT
+        value: 8080
       - key: KC_CACHE
         value: local
       # Keycloak behind Render proxy: disable strict hostname or set proxy headers
@@ -47,7 +49,7 @@ services:
         value: "true"
       - key: KC_HTTP_PORT
         value: 8080
-    healthCheckPath: /health/ready
+  healthCheckPath: /realms/master/.well-known/openid-configuration
 
   - type: web
     name: contta-searchapi-staging
